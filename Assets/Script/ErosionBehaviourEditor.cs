@@ -33,7 +33,7 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Create Texture"))
         {
-            t.CreateHeightmap();
+            t.CreateData();
             t.Draw();
         }
 

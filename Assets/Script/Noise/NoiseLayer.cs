@@ -8,12 +8,11 @@ public class NoiseLayer
     public bool enabled = true;
     public NoiseType type;
     public BlendMode blendMode; // TODO Get rid of lerp?!
-    [Range(0, 1)]
-    public float lerp;
+    [Range(0, 1)] public float lerp;
     public int seed;
     public float noiseScale = 1f;
 
-    public void Apply(Texture2D heightmap)
+    public void Apply(FloatField heightmap)
     {
         if (!enabled)
             return;
@@ -37,27 +36,22 @@ public class NoiseLayer
         }
     }
 
-    private static void Apply(INoise noise, Texture2D tex, float scale, float lerp, int seed = 0)
+    private static void Apply(INoise noise, FloatField heightMap, float scale, float lerp, int seed = 0)
     {
-        var pixels = new Color[tex.width * tex.height];
         var floatSeed = (float) seed;
 
-        for (var y = 0f; y < tex.height; y++)
+        for (var y = 0; y < heightMap.height; y++)
         {
-            for (var x = 0f; x < tex.width; x++)
+            for (var x = 0; x < heightMap.width; x++)
             {
                 var sampleX = x * scale + floatSeed;
                 var sampleY = y * scale + floatSeed;
                 var sample = noise.Sample(sampleX, sampleY);
-                var previousColor = tex.GetPixel((int) x, (int) y);
-                var newColor = new Color(sample, sample, sample);
-                pixels[(int) (y * tex.width + x)] = Color.Lerp(previousColor, newColor, lerp);
+                var previousValue = heightMap.GetValue(x, y);
+                var newValue = Mathf.Lerp(previousValue, sample, lerp);
+                heightMap.SetValue(x, y, newValue);
             }
         }
-
-        // Copy the pixel data to the texture and load it into the GPU
-        tex.SetPixels(pixels);
-        tex.Apply();
     }
 
     public enum NoiseType
