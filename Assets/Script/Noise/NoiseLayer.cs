@@ -1,16 +1,14 @@
 using System;
-using UnityEngine;
-using UnityEngine.Rendering;
 
 [Serializable]
 public class NoiseLayer
 {
     public bool enabled = true;
     public NoiseType type;
-    public BlendMode blendMode; // TODO Get rid of lerp?!
-    [Range(0, 1)] public float lerp;
+    public BlendMode blendMode;
     public int seed;
     public float noiseScale = 1f;
+    public float noiseAmplitude = 1f;
 
     public void Apply(FloatField heightmap)
     {
@@ -20,23 +18,23 @@ public class NoiseLayer
         switch (type)
         {
             case NoiseType.Perlin:
-                Apply(new PerlinNoise(), heightmap, noiseScale / 1000f, lerp, seed);
+                Apply(new PerlinNoise(), heightmap, noiseScale / 1000f);
                 break;
             case NoiseType.Voronoi:
-                Apply(new VoronoiNoise(), heightmap, noiseScale / 10f, lerp, seed);
+                Apply(new VoronoiNoise(), heightmap, noiseScale / 10f);
                 break;
             case NoiseType.OpenSimplex2S:
-                Apply(new OpenSimplex2SNoise(), heightmap, noiseScale / 10f, lerp, seed);
+                Apply(new OpenSimplex2SNoise(), heightmap, noiseScale / 10f);
                 break;
             case NoiseType.RigidPerlin:
-                Apply(new RigidPerlinNoise(), heightmap, noiseScale / 1000f, lerp, seed);
+                Apply(new RigidPerlinNoise(), heightmap, noiseScale / 1000f);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private static void Apply(INoise noise, FloatField heightMap, float scale, float lerp, int seed = 0)
+    private void Apply(INoise noise, FloatField heightMap, float scale)
     {
         var floatSeed = (float) seed;
 
@@ -46,10 +44,10 @@ public class NoiseLayer
             {
                 var sampleX = x * scale + floatSeed;
                 var sampleY = y * scale + floatSeed;
-                var sample = noise.Sample(sampleX, sampleY);
+                var value = noise.Sample(sampleX, sampleY) * noiseAmplitude;
                 var previousValue = heightMap.GetValue(x, y);
-                var newValue = Mathf.Lerp(previousValue, sample, lerp);
-                heightMap.SetValue(x, y, newValue);
+                var blendedValue = Blend.Calc(blendMode, previousValue, value);
+                heightMap.SetValue(x, y, blendedValue);
             }
         }
     }

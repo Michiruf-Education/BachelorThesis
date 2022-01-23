@@ -1,12 +1,17 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using MyBox;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 public class ErosionBehaviour : MonoBehaviour
 {
     [Header("General")] //
+    [Range(1, 255)]
+    //
     public int width = 100;
+    [Range(1, 255)] //
     public int height = 100;
 
     public RenderMode mode = RenderMode.UpdateMesh;
@@ -22,6 +27,7 @@ public class ErosionBehaviour : MonoBehaviour
     public SpriteRenderer hardnessMapSpriteRenderer;
 
     [Space] //
+    public bool normalizeNoises = true;
     public List<NoiseLayer> heightNoiseLayers;
     public List<NoiseLayer> hardnessNoiseLayers;
 
@@ -52,23 +58,57 @@ public class ErosionBehaviour : MonoBehaviour
 
     public void ApplyNoises()
     {
+        var timer = new Stopwatch();
+        timer.Start();
+
         heightNoiseLayers.ForEach(layer => layer.Apply(heightMap));
         hardnessNoiseLayers.ForEach(layer => layer.Apply(hardnessMap));
+
+        // Normalize / remap those maps
+        if (normalizeNoises)
+        {
+            heightMap.Remap(0, 1);
+            hardnessMap.Remap(0, 1);
+        }
+
+        timer.Stop();
+        Debug.Log($"All noises finished after {timer.ElapsedMilliseconds}ms");
     }
 
     public void ApplyErosion(Action callbackAfterIteration = null)
     {
+        var timer = new Stopwatch();
+        timer.Start();
+
         erosionLayers.ForEach(layer => layer.Apply(heightMap, hardnessMap, callbackAfterIteration));
+
+        timer.Stop();
+        Debug.Log($"All erosion finished after {timer.ElapsedMilliseconds}ms");
     }
 
     public void Draw()
     {
+        var timer = new Stopwatch();
+        timer.Start();
+
         var heightMapTexture = heightMap.ToTexture();
 
-        if (enableDebugFields && heightMapSpriteRenderer)
-            heightMapSpriteRenderer.sprite = heightMapTexture.ToSprite();
-        if (enableDebugFields && hardnessMapSpriteRenderer)
-            hardnessMapSpriteRenderer.sprite = hardnessMap.ToTexture().ToSprite();
+        if (enableDebugFields)
+        {
+            heightMapSpriteRenderer.gameObject.SetActive(true);
+            heightMapSpriteRenderer.transform.position = new Vector3(width, 0, 0);
+            hardnessMapSpriteRenderer.gameObject.SetActive(true);
+            hardnessMapSpriteRenderer.transform.position = new Vector3(width, 0, -height);
+            if (heightMapSpriteRenderer)
+                heightMapSpriteRenderer.sprite = heightMapTexture.ToSprite();
+            if (hardnessMapSpriteRenderer)
+                hardnessMapSpriteRenderer.sprite = hardnessMap.ToTexture().ToSprite();
+        }
+        else
+        {
+            heightMapSpriteRenderer.gameObject.SetActive(false);
+            hardnessMapSpriteRenderer.gameObject.SetActive(false);
+        }
 
         switch (mode)
         {
@@ -79,6 +119,9 @@ public class ErosionBehaviour : MonoBehaviour
                 TesselationDisplacementMaterial.Apply(targetRenderer, heightMapTexture);
                 break;
         }
+
+        timer.Stop();
+        Debug.Log($"All drawing finished after {timer.ElapsedMilliseconds}ms");
     }
 
     void OnValidate()

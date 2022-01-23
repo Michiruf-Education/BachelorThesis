@@ -45,17 +45,11 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Erode"))
         {
-            var timer = new Stopwatch();
-            timer.Start();
-
             if (t.drawOnEachErosionStep)
                 t.ApplyErosion(() => t.Draw());
             else
                 t.ApplyErosion();
             t.Draw();
-
-            timer.Stop();
-            Debug.Log($"Erosion finished after {timer.ElapsedMilliseconds}ms)");
         }
     }
 }

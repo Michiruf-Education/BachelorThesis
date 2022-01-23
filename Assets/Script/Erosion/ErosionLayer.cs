@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using MyBox;
 
 [Serializable]
@@ -7,6 +8,7 @@ public class ErosionLayer
     public bool enabled = true;
     public ErosionType type;
     public int seed;
+    public int iterations;
 
     [ConditionalField("type", false, ErosionType.Hydraulic)]
     public HydraulicErosionSettings hydraulicErosionSettings;
@@ -19,24 +21,26 @@ public class ErosionLayer
         switch (type)
         {
             case ErosionType.Hydraulic:
-                Apply(new HydraulicErosion(), height, hardness, seed, callbackAfterIteration);
+                Erode(new HydraulicErosion(hydraulicErosionSettings, seed), height, hardness, callbackAfterIteration);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private static void Apply(IErosion erosion, FloatField height, FloatField hardness, int seed, Action callbackAfterIteration)
+    private void Erode(IErosion erosion, FloatField height, FloatField hardness, Action callbackAfterIteration)
     {
-        var floatSeed = (float) seed;
+        var timer = new Stopwatch();
+        timer.Start();
 
-        for (var y = 0f; y < height.height; y++)
+        for (var i = 0; i < iterations; i++)
         {
-            for (var x = 0f; x < height.width; x++)
-            {
-                // TODO
-            }
+            erosion.Erode(height, hardness);
+            callbackAfterIteration?.Invoke();
         }
+
+        timer.Stop();
+        UnityEngine.Debug.Log($"{erosion.GetType().Name} finished after {timer.ElapsedMilliseconds}ms");
     }
 
     public enum ErosionType
