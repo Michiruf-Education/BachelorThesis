@@ -7,6 +7,11 @@ public partial class FloatField : ValueField<float>
     {
     }
 
+    public void BlendValue(int x, int y, BlendMode mode, float value)
+    {
+        ChangeValue(x, y, f => Blend.Calc(mode, f, value));
+    }
+
     public void Remap(float min, float max)
     {
         // Maybe consider using one of these functions instead

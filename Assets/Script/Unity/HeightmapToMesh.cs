@@ -4,48 +4,48 @@ using UnityEngine;
 // Got from https://answers.unity.com/questions/1033085/heightmap-to-mesh.html
 public class HeightmapToMesh
 {
-    public static void CreateGameObjectForHeightmap(Texture2D heightmap)
+    public static void CreateGameObjectForHeightmap(FloatField heightMap, float height)
     {
         // Create GO and add necessary components
         var go = new GameObject("ProcPlane");
         var meshFilter = go.AddComponent<MeshFilter>();
         go.AddComponent<MeshRenderer>();
 
-        ApplyToMeshFilter(meshFilter, heightmap);
+        ApplyToMeshFilter(meshFilter, heightMap, height);
     }
 
-    public static void ApplyToMeshFilter(MeshFilter meshFilter, Texture2D heightmap)
+    public static void ApplyToMeshFilter(MeshFilter meshFilter, FloatField heightMap, float height)
     {
         // Assign Mesh object to MeshFilter
         if (!meshFilter.sharedMesh)
             meshFilter.sharedMesh = new Mesh();
-        meshFilter.sharedMesh = UpdateMesh(meshFilter.sharedMesh, heightmap);
+        meshFilter.sharedMesh = UpdateMesh(meshFilter.sharedMesh, heightMap, height);
     }
 
-    public static Mesh UpdateMesh(Mesh mesh, Texture2D heightmap)
+    public static Mesh UpdateMesh(Mesh mesh, FloatField heightMap, float height)
     {
         var verts = new List<Vector3>();
         var tris = new List<int>();
 
         // Bottom left section of the map, other sections are similar
-        for (var y = 0; y < heightmap.height; y++)
+        for (var y = 0; y < heightMap.height; y++)
         {
-            for (var x = 0; x < heightmap.width; x++)
+            for (var x = 0; x < heightMap.width; x++)
             {
                 // Add each new vertex in the plane
-                verts.Add(new Vector3(x, heightmap.GetPixel(x, y).r * 100f, y));
+                verts.Add(new Vector3(x, heightMap.GetValue(x, y) * height, y));
 
                 // Skip if we cannot construct a triangle yet
                 if (x == 0 || y == 0) continue;
 
                 // Adds the index of the three vertices in order to make up each of the two tris
-                var i = (y - 1) * heightmap.width + (x - 1);
-                tris.Add(i + 1 + heightmap.width); // Bottom right
+                var i = (y - 1) * heightMap.width + (x - 1);
+                tris.Add(i + 1 + heightMap.width); // Bottom right
                 tris.Add(i + 1); // Top right
                 tris.Add(i); // Top left
                 tris.Add(i); // Top left
-                tris.Add(i + heightmap.width); // Bottom left
-                tris.Add(i + 1 + heightmap.width); // Bottom right
+                tris.Add(i + heightMap.width); // Bottom left
+                tris.Add(i + 1 + heightMap.width); // Bottom right
             }
         }
 

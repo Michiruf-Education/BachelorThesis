@@ -13,7 +13,7 @@ public class ErosionLayer
     [ConditionalField("type", false, ErosionType.Hydraulic)]
     public HydraulicErosionSettings hydraulicErosionSettings;
 
-    public void Apply(FloatField height, FloatField hardness, Action callbackAfterIteration)
+    public void Apply(FloatField heightMap, FloatField hardnessMap, Action callbackAfterIteration)
     {
         if (!enabled)
             return;
@@ -21,21 +21,21 @@ public class ErosionLayer
         switch (type)
         {
             case ErosionType.Hydraulic:
-                Erode(new HydraulicErosion(hydraulicErosionSettings, seed), height, hardness, callbackAfterIteration);
+                Erode(new HydraulicErosion(hydraulicErosionSettings, seed), heightMap, hardnessMap, callbackAfterIteration);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void Erode(IErosion erosion, FloatField height, FloatField hardness, Action callbackAfterIteration)
+    private void Erode(IErosion erosion, FloatField heightMap, FloatField hardnessMap, Action callbackAfterIteration)
     {
         var timer = new Stopwatch();
         timer.Start();
 
         for (var i = 0; i < iterations; i++)
         {
-            erosion.Erode(height, hardness);
+            erosion.Erode(heightMap, hardnessMap);
             callbackAfterIteration?.Invoke();
         }
 

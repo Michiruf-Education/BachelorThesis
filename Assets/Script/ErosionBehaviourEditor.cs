@@ -1,7 +1,7 @@
-using System.Diagnostics;
+using System.Collections;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 [CustomEditor(typeof(ErosionBehaviour))]
 [CanEditMultipleObjects]
@@ -12,6 +12,7 @@ public class ErosionBehaviourEditor : Editor
         var t = (ErosionBehaviour) target;
 
         // Basic validation
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalse
         if (t.mode == ErosionBehaviour.RenderMode.UpdateMesh && t.width * t.height > 65535)
         {
             EditorGUILayout.HelpBox("Meshes with more vertices than 65535 are not supported by unity.", MessageType.Error);
@@ -45,11 +46,16 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Erode"))
         {
+            // TODO Draw on each does not work at all
             if (t.drawOnEachErosionStep)
-                t.ApplyErosion(() => t.Draw());
+            {
+                new Thread(() => { t.ApplyErosion(t.Draw); }).Start();
+            }
             else
+            {
                 t.ApplyErosion();
-            t.Draw();
+                t.Draw();
+            }
         }
     }
 }

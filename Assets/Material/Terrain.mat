@@ -195,8 +195,8 @@ Material:
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _GrassBlendAmount: 0.5
-    - _GrassSlopeThreshold: 0.3
+    - _GrassBlendAmount: 1
+    - _GrassSlopeThreshold: 0.2
     - _HeightAmplitude: 0.02
     - _HeightCenter: 0.5
     - _HeightMapParametrization: 0

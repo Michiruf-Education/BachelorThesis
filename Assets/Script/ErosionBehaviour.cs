@@ -13,6 +13,7 @@ public class ErosionBehaviour : MonoBehaviour
     public int width = 100;
     [Range(1, 255)] //
     public int height = 100;
+    public float terrainHeight = 100f;
 
     public RenderMode mode = RenderMode.UpdateMesh;
     [ConditionalField("mode", false, RenderMode.UpdateMesh)] //
@@ -113,7 +114,7 @@ public class ErosionBehaviour : MonoBehaviour
         switch (mode)
         {
             case RenderMode.UpdateMesh:
-                HeightmapToMesh.ApplyToMeshFilter(targetFilter, heightMapTexture);
+                HeightmapToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
                 break;
             case RenderMode.TesselationMaterial:
                 TesselationDisplacementMaterial.Apply(targetRenderer, heightMapTexture);
@@ -126,8 +127,12 @@ public class ErosionBehaviour : MonoBehaviour
 
     void OnValidate()
     {
-        if (enableInEditor)
-            Start();
+        if (!enableInEditor)
+            return;
+        CreateData();
+        ApplyNoises();
+        // Do not do erosion here, because it may be way to expansive with enough iterations
+        Draw();
     }
 
     public enum RenderMode
