@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class RigidPerlinNoise : INoise
 {
-    private readonly PerlinNoise perlinNoise = new PerlinNoise();
+    private readonly INoise perlinNoise = new PerlinNoise();
 
     public float Sample(float x, float y)
     {

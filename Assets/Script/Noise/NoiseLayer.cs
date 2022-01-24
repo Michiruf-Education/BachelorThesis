@@ -29,6 +29,15 @@ public class NoiseLayer
             case NoiseType.RigidPerlin:
                 Apply(new RigidPerlinNoise(), heightmap, noiseScale / 1000f);
                 break;
+            case NoiseType.Warp:
+                Apply(new WarpNoise(), heightmap, noiseScale / 1000f);
+                break;
+            case NoiseType.Fbm:
+                Apply(new FbmNoise(), heightmap, noiseScale / 1000f);
+                break;
+            case NoiseType.MyCustomNoise:
+                Apply(new MyCustomNoise(), heightmap, noiseScale / 10f);
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -58,5 +67,8 @@ public class NoiseLayer
         RigidPerlin = 100,
         Voronoi = 2,
         OpenSimplex2S = 3,
+        Warp = 4,
+        Fbm = 5,
+        MyCustomNoise = 200,
     }
 }

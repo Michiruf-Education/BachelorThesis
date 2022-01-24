@@ -125,7 +125,7 @@ public class ErosionBehaviour : MonoBehaviour
         switch (mode)
         {
             case RenderMode.UpdateMesh:
-                HeightmapToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
+                HeightMapToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
                 break;
             case RenderMode.TesselationMaterial:
                 TesselationDisplacementMaterial.Apply(targetRenderer, heightMapTexture);

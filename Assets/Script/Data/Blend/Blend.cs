@@ -23,8 +23,8 @@ public class Blend
                 return a / b;
             case BlendMode.DivideInverse:
                 return b / a;
-            case BlendMode.Delta:
-                return Mathf.Abs(b - a);
+            case BlendMode.DifferenceAbsolute:
+                return Mathf.Abs(a - b);
             case BlendMode.Overwrite:
                 return b;
             case BlendMode.DoNothing:
