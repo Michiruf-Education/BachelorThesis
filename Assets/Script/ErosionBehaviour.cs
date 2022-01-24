@@ -7,37 +7,44 @@ using Debug = UnityEngine.Debug;
 
 public class ErosionBehaviour : MonoBehaviour
 {
-    [Header("General")] //
+    [Separator("General")] //
     [Range(1, 255)]
-    //
     public int width = 100;
     [Range(1, 255)] //
     public int height = 100;
     public float terrainHeight = 100f;
 
+    [Space] //
     public RenderMode mode = RenderMode.UpdateMesh;
     [ConditionalField("mode", false, RenderMode.UpdateMesh)] //
     public MeshFilter targetFilter;
     [ConditionalField("mode", false, RenderMode.TesselationMaterial)] //
     public MeshRenderer targetRenderer;
 
+    [Separator("Noises")] //
+    public bool normalizeNoises = true;
+    public List<NoiseLayer> heightNoiseLayers;
+    public List<NoiseLayer> hardnessNoiseLayers;
+
+    [Separator("Erosion")] //
+    public List<ErosionLayer> erosionLayers;
+
+    [Separator("Debug fields")] //
     public bool enableDebugFields;
     [ConditionalField("enableDebugFields", false, true)]
     public SpriteRenderer heightMapSpriteRenderer;
     [ConditionalField("enableDebugFields", false, true)]
     public SpriteRenderer hardnessMapSpriteRenderer;
 
-    [Space] //
-    public bool normalizeNoises = true;
-    public List<NoiseLayer> heightNoiseLayers;
-    public List<NoiseLayer> hardnessNoiseLayers;
+    [Separator("Slow simulation")] //
+    public bool slowSimulation;
+    public float slowSimulationWaitTimeBetweenIterations;
+    public int drawEachNthIteration = 1;
+    public bool visualizeErosionStep; // TODO Implement this!
 
-    [Space] //
-    public List<ErosionLayer> erosionLayers;
-
-    [Header("Editor")] //
+    [Separator("Editor")] //
+    public bool redrawOnChange;
     public bool enableInEditor;
-    public bool drawOnEachErosionStep;
 
     // Runtime variables
     private FloatField heightMap;
@@ -76,21 +83,25 @@ public class ErosionBehaviour : MonoBehaviour
         Debug.Log($"All noises finished after {timer.ElapsedMilliseconds}ms");
     }
 
-    public void ApplyErosion(Action callbackAfterIteration = null)
+    public void ApplyErosion()
     {
         var timer = new Stopwatch();
         timer.Start();
 
-        erosionLayers.ForEach(layer => layer.Apply(heightMap, hardnessMap, callbackAfterIteration));
+        erosionLayers.ForEach(layer => layer.Apply(heightMap, hardnessMap, this));
 
         timer.Stop();
         Debug.Log($"All erosion finished after {timer.ElapsedMilliseconds}ms");
     }
 
-    public void Draw()
+    public void Draw(bool printTimings = true)
     {
-        var timer = new Stopwatch();
-        timer.Start();
+        Stopwatch timer = null;
+        if (printTimings)
+        {
+            timer = new Stopwatch();
+            timer.Start();
+        }
 
         var heightMapTexture = heightMap.ToTexture();
 
@@ -121,13 +132,16 @@ public class ErosionBehaviour : MonoBehaviour
                 break;
         }
 
-        timer.Stop();
-        Debug.Log($"All drawing finished after {timer.ElapsedMilliseconds}ms");
+        if (timer != null)
+        {
+            timer.Stop();
+            Debug.Log($"All drawing finished after {timer.ElapsedMilliseconds}ms");
+        }
     }
 
     void OnValidate()
     {
-        if (!enableInEditor)
+        if (!redrawOnChange)
             return;
         CreateData();
         ApplyNoises();

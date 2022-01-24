@@ -19,7 +19,7 @@ public class HydraulicErosion : IErosion
     float[][] erosionBrushWeights;
 
 
-    public void Erode(FloatField heightMap, FloatField hardnessMap)
+    public void ErodeStep(FloatField heightMap, FloatField hardnessMap)
     {
         if (erosionBrushIndices == null)
             InitializeBrushIndices(heightMap.width, settings.erosionRadius);

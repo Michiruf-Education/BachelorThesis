@@ -8,5 +8,7 @@ public enum BlendMode
     Multiply,
     Divide,
     DivideInverse,
-    Delta
+    Delta,
+    Overwrite,
+    DoNothing
 }

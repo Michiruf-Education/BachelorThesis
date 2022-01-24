@@ -25,6 +25,10 @@ public class Blend
                 return b / a;
             case BlendMode.Delta:
                 return Mathf.Abs(b - a);
+            case BlendMode.Overwrite:
+                return b;
+            case BlendMode.DoNothing:
+                return a;
             default:
                 throw new ArgumentOutOfRangeException(nameof(mode), mode, null);
         }

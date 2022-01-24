@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Threading;
 using UnityEditor;
 using UnityEngine;
 
@@ -26,13 +24,13 @@ public class ErosionBehaviourEditor : Editor
 
         EditorGUILayout.Space();
 
-        if (GUILayout.Button("Redraw"))
+        if (GUILayout.Button("Perform everything"))
             t.Start();
 
         EditorGUILayout.Space();
-        GUILayout.Label("Single steps", EditorStyles.boldLabel);
+        GUILayout.Label("Single steps (including draw on each step)", EditorStyles.boldLabel);
 
-        if (GUILayout.Button("Create Texture"))
+        if (GUILayout.Button("Create Data"))
         {
             t.CreateData();
             t.Draw();
@@ -46,16 +44,11 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Erode"))
         {
-            // TODO Draw on each does not work at all
-            if (t.drawOnEachErosionStep)
-            {
-                new Thread(() => { t.ApplyErosion(t.Draw); }).Start();
-            }
-            else
-            {
-                t.ApplyErosion();
-                t.Draw();
-            }
+            t.ApplyErosion();
+            t.Draw();
         }
+
+        if (GUILayout.Button("Draw only"))
+            t.Draw();
     }
 }
