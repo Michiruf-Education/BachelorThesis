@@ -22,11 +22,12 @@ public class ErosionBehaviour : MonoBehaviour
     public MeshRenderer targetRenderer;
 
     [Separator("Noises")] //
-    public bool normalizeNoises = true;
+    public bool normalizeAfterNoises = true;
     public List<NoiseLayer> heightNoiseLayers;
     public List<NoiseLayer> hardnessNoiseLayers;
 
     [Separator("Erosion")] //
+    public bool normalizeAfterErosion = true;
     public List<ErosionLayer> erosionLayers;
 
     [Separator("Debug fields")] //
@@ -73,7 +74,7 @@ public class ErosionBehaviour : MonoBehaviour
         hardnessNoiseLayers.ForEach(layer => layer.Apply(hardnessMap));
 
         // Normalize / remap those maps
-        if (normalizeNoises)
+        if (normalizeAfterNoises)
         {
             heightMap.Remap(0, 1);
             hardnessMap.Remap(0, 1);
@@ -92,6 +93,13 @@ public class ErosionBehaviour : MonoBehaviour
 
         timer.Stop();
         Debug.Log($"All erosion finished after {timer.ElapsedMilliseconds}ms");
+
+        // Normalize / remap those maps
+        if (normalizeAfterErosion)
+        {
+            heightMap.Remap(0, 1);
+            hardnessMap.Remap(0, 1);
+        }
     }
 
     public void Draw(bool printTimings = true)

@@ -1,6 +1,6 @@
 public class FbmNoise : INoise
 {
-    private const float Layers = 3;
+    private const float Layers = 4;
     private readonly INoise noise = new PerlinNoise();
 
     public float Sample(float x, float y)
@@ -10,12 +10,11 @@ public class FbmNoise : INoise
 
         var frequency = 1.0f;
         var amplitude = 1.0f;
-        var seed = 0f;
         for (var layer = 0; layer < Layers; layer++)
         {
             result += noise.Sample(
-                x * frequency + seed++,
-                y * frequency + seed++
+                x * frequency,
+                y * frequency
             ) * amplitude;
             heightSum += amplitude;
 

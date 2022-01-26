@@ -1,0 +1,99 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: WaterNoises
+  m_Shader: {fileID: -6465566751694194690, guid: 70ca429849c19454a9482d37570ab475, type: 3}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - First_Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - MainNormal:
+        m_Texture: {fileID: 2800000, guid: f292b5525178c444e8996f4aa6f0c88b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Main_Normal:
+        m_Texture: {fileID: 2800000, guid: 197382cdc9b1e0048adc5eca5496b631, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Second_Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - SecondaryNormal:
+        m_Texture: {fileID: 2800000, guid: 84f1db79d915a55449d527f8bd1baf23, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Secondary_Normal:
+        m_Texture: {fileID: 2800000, guid: 84f1db79d915a55449d527f8bd1baf23, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - Third_Normal:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_Lightmaps:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_LightmapsInd:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - unity_ShadowMasks:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - Depth: 1
+    - Displacement: 0.8
+    - DisplacementSpeed: 3
+    - DisplacementWidth: 7
+    - First_Speed: 1
+    - First_Strength: 2
+    - First_Tiling: 0.1
+    - Main_Speed: 0.5
+    - Main_Strength: 0.1
+    - Main_Tiling: 0.7
+    - NoiseVariantNormalStrenthBump: 2
+    - Second_Speed: 4
+    - Second_Strength: 1
+    - Second_Tiling: 0.2
+    - Secondary_Speed: -0.25
+    - Secondary_Strength: 0.1
+    - Secondary_Tiling: 0.3
+    - Smoothness: 0.7
+    - Strength: 0.8
+    - Third_Speed: 0.5
+    - Third_Strength: 0.5
+    - Third_Tiling: 0.5
+    - UseNoisesNotTextures: 1
+    m_Colors:
+    - Deep_Water_Color: {r: 0, g: 0.46234474, b: 0.512, a: 1}
+    - First_Direction: {r: 1, g: 0, b: 0, a: 0}
+    - First_Speed: {r: 1, g: 0, b: 0, a: 0}
+    - First_Speed_1: {r: 0, g: 0, b: 0, a: 0}
+    - Second_Direction: {r: 1, g: 0, b: 0, a: 0}
+    - Second_Speed: {r: -1, g: 0, b: 0, a: 0}
+    - Second_Speed_1: {r: 0, g: 0, b: 0, a: 0}
+    - Shallow_Water_Color: {r: 0.6666667, g: 0.9493658, b: 1, a: 0}
+    - Third_Direction: {r: -1, g: 0, b: 0, a: 0}
+    - Third_Speed: {r: 0, g: 0, b: 0, a: 0}
+    - Third_Speed_1: {r: 0, g: 0, b: 0, a: 0}
+  m_BuildTextureStacks: []
