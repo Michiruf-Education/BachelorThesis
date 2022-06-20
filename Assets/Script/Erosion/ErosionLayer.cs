@@ -15,6 +15,8 @@ public class ErosionLayer
 
     [ConditionalField("type", false, ErosionType.Hydraulic)]
     public HydraulicErosionSettings hydraulicErosionSettings;
+    [ConditionalField("type", false, ErosionType.Wind)]
+    public WindErosionSettings windErosionSettings;
 
     public void Apply(FloatField heightMap, FloatField hardnessMap, ErosionBehaviour b)
     {
@@ -26,6 +28,9 @@ public class ErosionLayer
             case ErosionType.Hydraulic:
                 Erode(new HydraulicErosion(hydraulicErosionSettings, seed), heightMap, hardnessMap, b);
                 break;
+            case ErosionType.Wind:
+                Erode(new WindErosion(windErosionSettings, seed), heightMap, hardnessMap, b);
+                break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
@@ -36,28 +41,29 @@ public class ErosionLayer
         var timer = new Stopwatch();
         timer.Start();
 
+        erosion.Init(heightMap,  hardnessMap);
         if (b.slowSimulation)
-            MyCoroutineHandler.StartCoroutine(ErodeAsync(erosion, heightMap, hardnessMap, b), b, this);
+            MyCoroutineHandler.StartCoroutine(ErodeAsync(erosion, b), b, this);
         else
-            ErodeSync(erosion, heightMap, hardnessMap, b);
+            ErodeSync(erosion);
 
         timer.Stop();
         Debug.Log($"{erosion.GetType().Name} finished after {timer.ElapsedMilliseconds}ms");
     }
 
-    private void ErodeSync(IErosion erosion, FloatField heightMap, FloatField hardnessMap, ErosionBehaviour b)
+    private void ErodeSync(IErosion erosion)
     {
         for (var i = 0; i < iterations; i++)
         {
-            erosion.ErodeStep(heightMap, hardnessMap);
+            erosion.ErodeStep();
         }
     }
 
-    private IEnumerator ErodeAsync(IErosion erosion, FloatField heightMap, FloatField hardnessMap, ErosionBehaviour b)
+    private IEnumerator ErodeAsync(IErosion erosion, ErosionBehaviour b)
     {
         for (var i = 0; i < iterations; i++)
         {
-            erosion.ErodeStep(heightMap, hardnessMap);
+            erosion.ErodeStep();
 
             if (b.slowSimulation)
             {

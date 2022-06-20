@@ -6,6 +6,8 @@ public class ValueField<T>
     public readonly int height;
     public T[] values;
 
+    public int size => width * height;
+
     public ValueField(int width, int height)
     {
         this.width = width;
@@ -31,5 +33,22 @@ public class ValueField<T>
     public void ChangeValue(int x, int y, Func<T, T> changeFunction)
     {
         SetValue(x, y, changeFunction(GetValue(x, y)));
+    }
+
+    public bool IsInBounds(int x, int y)
+    {
+        return x >= 0 && x < width && y >= 0 && y < height;
+    }
+
+    public T this[int index]
+    {
+        get => values[index];
+        set => values[index] = value;
+    }
+
+    public T this[int x, int y]
+    {
+        get => GetValue(x, y);
+        set => SetValue(x, y, value);
     }
 }

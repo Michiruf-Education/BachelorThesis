@@ -1,4 +1,6 @@
 public interface IErosion
 {
-    void ErodeStep(FloatField heightMap, FloatField hardnessMap);
+    void Init(FloatField heightMap, FloatField hardnessMap);
+
+    void ErodeStep();
 }

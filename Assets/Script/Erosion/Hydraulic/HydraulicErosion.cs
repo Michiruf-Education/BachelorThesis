@@ -1,38 +1,41 @@
-using System;
-using Unity.VisualScripting;
 using UnityEngine;
 using Random = System.Random;
 
 public class HydraulicErosion : IErosion
 {
-    private readonly HydraulicErosionSettings settings;
+    private readonly HydraulicErosionSettings s;
     private readonly Random random;
+
+    private FloatField heightMap;
+    private FloatField hardnessMap;
+
+    // Indices and weights of erosion brush precomputed for every node
+    private int[][] erosionBrushIndices;
+    private float[][] erosionBrushWeights;
 
     public HydraulicErosion(HydraulicErosionSettings settings, int seed)
     {
-        this.settings = settings;
+        s = settings;
         random = new Random(seed);
     }
 
-    // Indices and weights of erosion brush precomputed for every node
-    int[][] erosionBrushIndices;
-    float[][] erosionBrushWeights;
-
-
-    public void ErodeStep(FloatField heightMap, FloatField hardnessMap)
+    public void Init(FloatField heightMap, FloatField hardnessMap)
     {
-        if (erosionBrushIndices == null)
-            InitializeBrushIndices(heightMap.width, settings.erosionRadius);
+        this.heightMap = heightMap;
+        this.hardnessMap = hardnessMap;
+        InitializeBrushIndices(heightMap.width, s.erosionRadius);
+    }
 
-
+    public void ErodeStep()
+    {
         // Create water droplet at random point on map
         var droplet = new Droplet(
             random.Next(0, heightMap.width - 1),
             random.Next(0, heightMap.height - 1),
-            settings.initialSpeed,
-            settings.initialWaterVolume);
+            s.initialSpeed,
+            s.initialWaterVolume);
 
-        for (var lifetime = 0; lifetime < settings.maxDropletLifetime; lifetime++)
+        for (var lifetime = 0; lifetime < s.maxDropletLifetime; lifetime++)
         {
             var originalDroplet = new Droplet(droplet);
 
@@ -41,8 +44,8 @@ public class HydraulicErosion : IErosion
 
             // Update the droplet's direction and position (move position 1 unit regardless of speed)
             droplet.direction += new Vector2(
-                droplet.direction.x * settings.inertia - heightAndGradient.gradientX * (1 - settings.inertia),
-                droplet.direction.y * settings.inertia - heightAndGradient.gradientY * (1 - settings.inertia)
+                droplet.direction.x * s.inertia - heightAndGradient.gradientX * (1 - s.inertia),
+                droplet.direction.y * s.inertia - heightAndGradient.gradientY * (1 - s.inertia)
             );
             droplet.direction.Normalize();
             droplet.position += droplet.direction;
@@ -59,8 +62,8 @@ public class HydraulicErosion : IErosion
 
             // Calculate the droplet's sediment capacity (higher when moving fast down a slope and contains lots of water)
             var sedimentCapacity = Mathf.Max(
-                -deltaHeight * droplet.speed * droplet.water * settings.sedimentCapacityFactor,
-                settings.minSedimentCapacity);
+                -deltaHeight * droplet.speed * droplet.water * s.sedimentCapacityFactor,
+                s.minSedimentCapacity);
 
             // If carrying more sediment than capacity, or if flowing uphill:
             if (droplet.sediment > sedimentCapacity || deltaHeight > 0)
@@ -70,7 +73,7 @@ public class HydraulicErosion : IErosion
                 // If moving uphill (deltaHeight > 0) try fill up to the current height, otherwise deposit a fraction of the excess sediment
                 var amountToDeposit = deltaHeight > 0
                     ? Mathf.Min(deltaHeight, droplet.sediment)
-                    : (droplet.sediment - sedimentCapacity) * settings.depositSpeed;
+                    : (droplet.sediment - sedimentCapacity) * s.depositSpeed;
                 droplet.sediment -= amountToDeposit;
 
                 // Add the sediment to the four nodes of the current cell using bilinear interpolation
@@ -91,7 +94,7 @@ public class HydraulicErosion : IErosion
                 // Erode a fraction of the droplet's current carry capacity.
                 // Clamp the erosion to the change in height so that it doesn't dig a hole in the terrain behind the droplet
                 var amountToErode = Mathf.Min(
-                    (sedimentCapacity - droplet.sediment) * settings.erodeSpeed,
+                    (sedimentCapacity - droplet.sediment) * s.erodeSpeed,
                     -deltaHeight);
 
                 // Use erosion brush to erode from all nodes inside the droplet's erosion radius
@@ -107,8 +110,8 @@ public class HydraulicErosion : IErosion
             }
 
             // Update droplet's speed and water content
-            droplet.speed = Mathf.Sqrt(droplet.speed * droplet.speed + deltaHeight * settings.gravity);
-            droplet.water *= 1 - settings.evaporateSpeed;
+            droplet.speed = Mathf.Sqrt(droplet.speed * droplet.speed + deltaHeight * s.gravity);
+            droplet.water *= 1 - s.evaporateSpeed;
         }
     }
 
@@ -117,34 +120,34 @@ public class HydraulicErosion : IErosion
         erosionBrushIndices = new int[mapSize * mapSize][];
         erosionBrushWeights = new float[mapSize * mapSize][];
 
-        int[] xOffsets = new int[radius * radius * 4];
-        int[] yOffsets = new int[radius * radius * 4];
-        float[] weights = new float[radius * radius * 4];
+        var xOffsets = new int[radius * radius * 4];
+        var yOffsets = new int[radius * radius * 4];
+        var weights = new float[radius * radius * 4];
         float weightSum = 0;
-        int addIndex = 0;
+        var addIndex = 0;
 
-        for (int i = 0; i < erosionBrushIndices.GetLength(0); i++)
+        for (var i = 0; i < erosionBrushIndices.GetLength(0); i++)
         {
-            int centreX = i % mapSize;
-            int centreY = i / mapSize;
+            var centreX = i % mapSize;
+            var centreY = i / mapSize;
 
             if (centreY <= radius || centreY >= mapSize - radius || centreX <= radius + 1 || centreX >= mapSize - radius)
             {
                 weightSum = 0;
                 addIndex = 0;
-                for (int y = -radius; y <= radius; y++)
+                for (var y = -radius; y <= radius; y++)
                 {
-                    for (int x = -radius; x <= radius; x++)
+                    for (var x = -radius; x <= radius; x++)
                     {
                         float sqrDst = x * x + y * y;
                         if (sqrDst < radius * radius)
                         {
-                            int coordX = centreX + x;
-                            int coordY = centreY + y;
+                            var coordX = centreX + x;
+                            var coordY = centreY + y;
 
                             if (coordX >= 0 && coordX < mapSize && coordY >= 0 && coordY < mapSize)
                             {
-                                float weight = 1 - Mathf.Sqrt(sqrDst) / radius;
+                                var weight = 1 - Mathf.Sqrt(sqrDst) / radius;
                                 weightSum += weight;
                                 weights[addIndex] = weight;
                                 xOffsets[addIndex] = x;
@@ -156,11 +159,11 @@ public class HydraulicErosion : IErosion
                 }
             }
 
-            int numEntries = addIndex;
+            var numEntries = addIndex;
             erosionBrushIndices[i] = new int[numEntries];
             erosionBrushWeights[i] = new float[numEntries];
 
-            for (int j = 0; j < numEntries; j++)
+            for (var j = 0; j < numEntries; j++)
             {
                 erosionBrushIndices[i][j] = (yOffsets[j] + centreY) * mapSize + xOffsets[j] + centreX;
                 erosionBrushWeights[i][j] = weights[j] / weightSum;

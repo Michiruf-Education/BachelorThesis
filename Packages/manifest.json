@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "com.domybest.mybox": "https://github.com/Deadcows/MyBox.git",
+    "com.kink3d.mirrors": "https://github.com/Kink3d/kMirrors.git",
+    "com.kink3d.shading": "https://github.com/Kink3d/kShading.git#features/kmirrors-support",
     "com.unity.collab-proxy": "1.3.9",
     "com.unity.editorcoroutines": "1.0.0",
     "com.unity.ide.rider": "3.0.6",

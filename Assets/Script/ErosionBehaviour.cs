@@ -136,8 +136,7 @@ public class ErosionBehaviour : MonoBehaviour
                 HeightMapToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
                 break;
             case RenderMode.TesselationMaterial:
-                TesselationDisplacementMaterial.Apply(targetRenderer, heightMapTexture);
-                break;
+                throw new NotImplementedException("Tesselation not yet implemented.");
         }
 
         if (timer != null)

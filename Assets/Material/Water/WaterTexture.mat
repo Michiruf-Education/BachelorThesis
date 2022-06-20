@@ -47,6 +47,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 197382cdc9b1e0048adc5eca5496b631, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _ReflectionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -71,6 +75,8 @@ Material:
     - Main_Speed: 0.5
     - Main_Strength: 0.1
     - Main_Tiling: 0.7
+    - Metallic: 0
+    - NoiseVariantNormalStrenthBump: 0
     - Second_Speed: 0.1
     - Second_Strength: 0.1
     - Second_Tiling: 0.05
@@ -82,6 +88,7 @@ Material:
     - Third_Speed: 0.5
     - Third_Strength: 0.1
     - Third_Tiling: 0.02
+    - UseNoisesNotTextures: 0
     m_Colors:
     - Deep_Water_Color: {r: 0, g: 0.46234474, b: 0.512, a: 1}
     - First_Direction: {r: 1, g: 0, b: 0, a: 0}

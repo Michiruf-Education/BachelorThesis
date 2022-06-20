@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using UnityEngine;
 
@@ -5,6 +6,11 @@ public partial class FloatField : ValueField<float>
 {
     public FloatField(int width, int height) : base(width, height)
     {
+    }
+
+    public Vector3 CalculateNormal(int x, int y)
+    {
+        throw new NotImplementedException("FloatField.CalculateNormal not yet implemented");
     }
 
     public void BlendValue(int x, int y, BlendMode mode, float value)
