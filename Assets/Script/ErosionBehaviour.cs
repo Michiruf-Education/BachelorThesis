@@ -22,8 +22,10 @@ public class ErosionBehaviour : MonoBehaviour
     public MeshRenderer targetRenderer;
 
     [Separator("Noises")] //
-    public bool normalizeAfterNoises = true;
+    public bool normalizeHeightAfterNoises = true;
     public List<NoiseLayer> heightNoiseLayers;
+    public bool normalizeHardnessAfterNoises = true;
+    public float hardnessExponentialFactor = 1f;
     public List<NoiseLayer> hardnessNoiseLayers;
 
     [Separator("Erosion")] //
@@ -51,7 +53,12 @@ public class ErosionBehaviour : MonoBehaviour
     private FloatField heightMap;
     private FloatField hardnessMap;
 
-    internal void Start()
+    void Start()
+    {
+        DoEverything();
+    }
+
+    public void DoEverything()
     {
         CreateData();
         ApplyNoises();
@@ -74,11 +81,12 @@ public class ErosionBehaviour : MonoBehaviour
         hardnessNoiseLayers.ForEach(layer => layer.Apply(hardnessMap));
 
         // Normalize / remap those maps
-        if (normalizeAfterNoises)
-        {
+        if (normalizeHeightAfterNoises)
             heightMap.Remap(0, 1);
+        if (normalizeHardnessAfterNoises)
             hardnessMap.Remap(0, 1);
-        }
+        
+        hardnessMap.ChangeAll(f => Mathf.Pow(f, hardnessExponentialFactor));
 
         timer.Stop();
         Debug.Log($"All noises finished after {timer.ElapsedMilliseconds}ms");
@@ -94,12 +102,9 @@ public class ErosionBehaviour : MonoBehaviour
         timer.Stop();
         Debug.Log($"All erosion finished after {timer.ElapsedMilliseconds}ms");
 
-        // Normalize / remap those maps
+        // Normalize after erosion
         if (normalizeAfterErosion)
-        {
             heightMap.Remap(0, 1);
-            hardnessMap.Remap(0, 1);
-        }
     }
 
     public void Draw(bool printTimings = true)
@@ -127,7 +132,7 @@ public class ErosionBehaviour : MonoBehaviour
             heightMapSpriteRenderer.gameObject.SetActive(false);
             hardnessMapSpriteRenderer.gameObject.SetActive(false);
         }
-
+        
         switch (mode)
         {
             case RenderMode.UpdateMesh:

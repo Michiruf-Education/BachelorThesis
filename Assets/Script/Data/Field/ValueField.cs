@@ -66,6 +66,20 @@ public class ValueField<T>
         SetValue(x, y, changeFunction(x, y, GetValue(x, y)));
     }
 
+    public void ChangeAll(Func<T, T> changeFunction)
+    {
+        for (var y = 0; y < height; y++)
+        for (var x = 0; x < width; x++)
+            SetValue(x, y, changeFunction(GetValue(x, y)));
+    }
+
+    public void ChangeAll(Func<int, int, T, T> changeFunction)
+    {
+        for (var y = 0; y < height; y++)
+        for (var x = 0; x < width; x++)
+            SetValue(x, y, changeFunction(x, y, GetValue(x, y)));
+    }
+
     public bool IsInBounds(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;

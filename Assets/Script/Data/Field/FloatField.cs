@@ -15,16 +15,12 @@ public partial class FloatField : ValueField<float>
 
     public void BlendAll(BlendMode mode, float value)
     {
-        for (var y = 0; y < height; y++)
-        for (var x = 0; x < width; x++)
-            ChangeValue(x, y, f => Blend.Calc(mode, f, value));
+        ChangeAll(f => Blend.Calc(mode, f, value));
     }
 
     public void BlendAll(BlendMode mode, FloatField values)
     {
-        for (var y = 0; y < height; y++)
-        for (var x = 0; x < width; x++)
-            ChangeValue(x, y, (fieldX, fieldY, f) => Blend.Calc(mode, f, values.GetValue(fieldX, fieldY)));
+        ChangeAll((fieldX, fieldY, f) => Blend.Calc(mode, f, values.GetValue(fieldX, fieldY)));
     }
 
     public void Remap(float min, float max)
@@ -34,6 +30,11 @@ public partial class FloatField : ValueField<float>
         var vMin = values.Min();
         var vMax = values.Max();
         var breadth = vMax - vMin;
+
+        // If the whole map has the same height, we cannot do anything
+        if (breadth == 0f)
+            return;
+
         for (var i = 0; i < values.Length; i++)
         {
             var percentage = (values[i] - vMin) / breadth;

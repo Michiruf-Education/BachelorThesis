@@ -25,7 +25,7 @@ public class ErosionBehaviourEditor : Editor
         EditorGUILayout.Space();
 
         if (GUILayout.Button("Perform everything"))
-            t.Start();
+            t.DoEverything();
 
         EditorGUILayout.Space();
         GUILayout.Label("Single steps (including draw on each step)", EditorStyles.boldLabel);

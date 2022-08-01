@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Random = System.Random;
 
@@ -23,6 +24,8 @@ public class HydraulicErosion : IErosion
     {
         this.heightMap = heightMap;
         this.hardnessMap = hardnessMap;
+        // if (heightMap.width != hardnessMap.width || heightMap.height != hardnessMap.height)
+        //     throw new Exception("HeightMap and HardnessMap not of same bounds");
         InitializeBrushIndices(heightMap.width, s.erosionRadius);
     }
 
@@ -103,7 +106,9 @@ public class HydraulicErosion : IErosion
                 {
                     var nodeIndex = erosionBrushIndices[dropletIndex][brushPointIndex];
                     var weighedErodeAmount = amountToErode * erosionBrushWeights[dropletIndex][brushPointIndex];
-                    var deltaSediment = heightMap.values[nodeIndex] < weighedErodeAmount ? heightMap.values[nodeIndex] : weighedErodeAmount;
+                    var deltaSedimentIncludingHardness = weighedErodeAmount * (1f - hardnessMap.values[nodeIndex]);
+                    var deltaSediment = heightMap.values[nodeIndex] < weighedErodeAmount ? heightMap.values[nodeIndex] : deltaSedimentIncludingHardness;
+                    // var deltaSediment = heightMap.values[nodeIndex] < weighedErodeAmount ? heightMap.values[nodeIndex] : weighedErodeAmount;
                     heightMap.values[nodeIndex] -= deltaSediment;
                     droplet.sediment += deltaSediment;
                 }
