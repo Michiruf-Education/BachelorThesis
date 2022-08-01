@@ -1,3 +1,4 @@
+using MyBox;
 using UnityEngine;
 using Random = System.Random;
 
@@ -19,10 +20,8 @@ public class WindErosion : IErosion
                                    sedimentMap.GetValue(d.positionOfCell.x, d.positionOfCell.y);
     private float nTerrainHeight => heightMap.GetValue(nd.positionOfCell.x, nd.positionOfCell.y) +
                                     sedimentMap.GetValue(nd.positionOfCell.x, nd.positionOfCell.y);
-    private bool isInBounds => heightMap.IsInBounds((int) d.position.x, (int) d.position.y);
-    private bool nIsInBounds => heightMap.IsInBounds((int) nd.position.x, (int) nd.position.y);
-    private Vector3 normal => heightMap.CalculateNormal(nd.positionOfCell.x, nd.positionOfCell.y); // TODO Use sediment also
-    private Vector3 nNormal => heightMap.CalculateNormal(nd.positionOfCell.x, nd.positionOfCell.y); // TODO Use sediment also
+    private bool isInBounds => heightMap.IsInBounds((int)d.position.x, (int)d.position.y);
+    private bool nIsInBounds => heightMap.IsInBounds((int)nd.position.x, (int)nd.position.y);
 
     public WindErosion(WindErosionSettings settings, int seed)
     {
@@ -33,24 +32,31 @@ public class WindErosion : IErosion
     public void Init(FloatField heightMap, FloatField hardnessMap)
     {
         this.heightMap = heightMap;
-        sedimentMap = new FloatField(heightMap.width, heightMap.height);
         this.hardnessMap = hardnessMap;
+        sedimentMap = new FloatField(heightMap.width, heightMap.height);
     }
 
     public void ErodeStep()
     {
+        // Visualize sediment map
+        if (s.sedimentMap)
+            s.sedimentMap.sprite = sedimentMap.ToTexture().ToSprite();
+        
         // Create wind particle at random position
         d = new WindParticleData(
             random.Next(0, heightMap.width - 1),
-            random.Next(0, heightMap.height - 1)
+            random.Next(0, heightMap.height - 1),
+            s.initialSpeed
         );
 
-        // Perform Wind Erosion Cycle
-        Handle();
-    }
+        // TODO Only used for debugging
+        var cV = new FloatField(3, 1);
+        cV.SetValue(0, random.Next());
+        cV.SetValue(1, random.Next());
+        cV.SetValue(2, random.Next());
+        cV.Remap(0, 1);
+        var c = new Color(cV[0], cV[1], cV[2]);
 
-    private void Handle()
-    {
         for (var i = 0; i < s.maxParticleLifetime; i++)
         {
             // Particles under the terrain height are moved upwards
@@ -74,9 +80,11 @@ public class WindErosion : IErosion
                 AbrasionAndSuspension();
 
             // Stop when particle has equilibrium movement (no speed)
-            if (nd.velocity.magnitude < 0.01)
+            if (nd.velocity.magnitude < 0.01f)
                 break;
-
+            
+            var color = c.BrightnessOffset((float)i / s.maxParticleLifetime);
+            Debug.DrawLine(new Vector3(nd.position.x, nd.height, nd.position.y), new Vector3(nd.position.x, nd.height + 20f, nd.position.y), color, 60f);
 
             // Update the new data to the old one to start over again
             d = nd;
@@ -93,8 +101,11 @@ public class WindErosion : IErosion
         // When sliding
         else
         {
+            // TODO What scale?
+            // https://github.com/weigert/SimpleWindErosion/blob/master/source/wind.h
+            var normal = SurfaceNormal(d.position, 1f);
             // TODO https://www.wolframalpha.com/ visualize double cross
-            nd.velocity += s.dt * Vector3.Cross(Vector3.Cross(nd.velocity, nNormal), nNormal);
+            nd.velocity += s.dt * Vector3.Cross(Vector3.Cross(nd.velocity, normal), normal);
         }
 
         // Accelerate by prevailing wind
@@ -143,6 +154,9 @@ public class WindErosion : IErosion
 
     private void Cascade(int index)
     {
+        var px = heightMap.GetXFromIndex(index);
+        var py = heightMap.GetYFromIndex(index);
+
         // Neighbor Position Offsets (8-Way)
         var nx = new[]
         {
@@ -153,45 +167,89 @@ public class WindErosion : IErosion
             -1, 0, 1, -1, 1, -1, 0, 1
         };
 
-        // Neighbor Indices (8-Way
-        var n = new[]
+        // Iterate over all Neighbors
+        for (var m = 0; m < 8; m++)
         {
-            i - dim.y - 1, i - dim.y, i - dim.y + 1, i - 1, i + 1,
-            i + dim.y - 1, i + dim.y, i + dim.y + 1
-        };
+            // Neighbor Out-Of-Bounds
+            if (!heightMap.IsInBounds(px + nx[m], py + ny[m]))
+                continue;
 
-        glm::ivec2 ipos;
+            var neighborIndex = heightMap.GetIndex(px + nx[m], py + ny[m]);
 
-        //Iterate over all Neighbors
-        for (int m = 0; m < 8; m++)
-        {
-            ipos = pos;
+            // Pile size
+            var diff = (heightMap[index] + sedimentMap[index]) - (heightMap[neighborIndex] + sedimentMap[neighborIndex]);
+            var excess = Mathf.Abs(diff) - s.roughness;
 
-            //Neighbor Out-Of-Bounds
-            if (n[m] < 0 || n[m] >= heightMap.size) continue;
-            if (ipos.x + nx[m] >= dim.x || ipos.y + ny[m] >= dim.y) continue;
-            if (ipos.x + nx[m] < 0 || ipos.y + ny[m] < 0) continue;
-
-            //Pile Size Difference and Excess
-            float diff = (h[i] + s[i]) - (h[n[m]] + s[n[m]]);
-            float excess = abs(diff) - roughness;
-
-            //Stable Configuration
-            if (excess <= 0) continue;
+            // Stable configuration
+            if (excess <= 0)
+                continue;
 
             float transfer;
 
-            //Pile is Larger
+            // Pile is larger
             if (diff > 0)
-                transfer = min(s[i], excess / 2.0);
-
-            //Neighbor is Larger
+                transfer = Mathf.Min(sedimentMap[index], excess / 2.0f);
+            // Neighbor is larger
             else
-                transfer = -min(s[n[m]], excess / 2.0);
+                transfer = -Mathf.Min(sedimentMap[neighborIndex], excess / 2.0f);
 
-            //Perform Transfer
-            s[i] -= dt * settling * transfer;
-            s[n[m]] += dt * settling * transfer;
+            // Perform Transfer
+            sedimentMap[index] -= s.dt * s.settling * transfer;
+            sedimentMap[neighborIndex] += s.dt * s.settling * transfer;
         }
+    }
+
+    // TODO Following up causes OOBException
+
+    private Vector3 surfaceNormal(int index, float scale, int radius = 1)
+    {
+        var surface = new FloatField(heightMap.width, heightMap.height);
+        surface.BlendAll(BlendMode.Add, heightMap);
+        surface.BlendAll(BlendMode.Add, sedimentMap);
+
+        // Two large triangles adjacent to the plane (+Y -> +X) (-Y -> -X)
+        // If the maximum gets increased, more surrounding data will be used
+        var result = Vector3.zero;
+        for (var i = 1; i <= radius; i++)
+        {
+            var height = heightMap.height;
+            result += (1f / (float)i * i) * Vector3.Cross(
+                new Vector3(0f, scale * (surface[index + i] - surface[index]), i),
+                new Vector3(i, scale * (surface[index + i * height] - surface[index]), 0f)
+            );
+            result += (1f / (float)i * i) * Vector3.Cross(
+                new Vector3(0f, scale * (surface[index - i] - surface[index]), -i),
+                new Vector3(-i, scale * (surface[index - i * height] - surface[index]), 0f)
+            );
+            result += (1f / (float)i * i) * Vector3.Cross(
+                new Vector3(i, scale * (surface[index + i * height] - surface[index]), 0f),
+                new Vector3(0f, scale * (surface[index - i] - surface[index]), -i)
+            );
+            result += (1f / (float)i * i) * Vector3.Cross(
+                new Vector3(-i, scale * (surface[index - i * height] - surface[index]),
+                    0f),
+                new Vector3(0f, scale * (surface[index + i] - surface[index]), i)
+            );
+        }
+
+        return result.normalized;
+    }
+
+    private Vector3 SurfaceNormal(Vector2 pos, float scale)
+    {
+        var P00 = new Vector2Int((int)pos.x, (int)pos.y); // Floored Position
+        var P10 = P00 + new Vector2Int(1, 0);
+        var P01 = P00 + new Vector2Int(0, 1);
+        var P11 = P00 + new Vector2Int(1, 1);
+
+        var N00 = surfaceNormal(heightMap.GetIndex(P00), scale);
+        var N10 = surfaceNormal(heightMap.GetIndex(P10), scale);
+        var N01 = surfaceNormal(heightMap.GetIndex(P01), scale);
+        var N11 = surfaceNormal(heightMap.GetIndex(P11), scale);
+
+        // Weights (modulo position)
+        // glm::vec2 w = 1.0f-glm::mod(pos, glm::vec2(1.0));
+        var w = new Vector2(1.0f - pos.x % 1.0f, 1.0f - pos.y % 1.0f);
+        return w.x * w.y * N00 + (1.0f - w.x) * w.y * N10 + w.x * (1.0f - w.y) * N01 + (1.0f - w.x) * (1.0f - w.y) * N11;
     }
 }

@@ -1,10 +1,11 @@
 using System;
+using UnityEngine;
 
 public class ValueField<T>
 {
     public readonly int width;
     public readonly int height;
-    public T[] values;
+    public readonly T[] values;
 
     public int size => width * height;
 
@@ -20,9 +21,34 @@ public class ValueField<T>
         return y * width + x;
     }
 
+    public int GetIndex(Vector2Int v)
+    {
+        return v.y * width + v.x;
+    }
+
+    public int GetXFromIndex(int index)
+    {
+        return index % width;
+    }
+
+    public int GetYFromIndex(int index)
+    {
+        return index % width;
+    }
+
+    public T GetValue(int index)
+    {
+        return values[index];
+    }
+
     public T GetValue(int x, int y)
     {
         return values[GetIndex(x, y)];
+    }
+
+    public void SetValue(int index, T value)
+    {
+        values[index] = value;
     }
 
     public void SetValue(int x, int y, T value)
@@ -35,6 +61,11 @@ public class ValueField<T>
         SetValue(x, y, changeFunction(GetValue(x, y)));
     }
 
+    public void ChangeValue(int x, int y, Func<int, int, T, T> changeFunction)
+    {
+        SetValue(x, y, changeFunction(x, y, GetValue(x, y)));
+    }
+
     public bool IsInBounds(int x, int y)
     {
         return x >= 0 && x < width && y >= 0 && y < height;
@@ -42,8 +73,8 @@ public class ValueField<T>
 
     public T this[int index]
     {
-        get => values[index];
-        set => values[index] = value;
+        get => GetValue(index);
+        set => SetValue(index, value);
     }
 
     public T this[int x, int y]

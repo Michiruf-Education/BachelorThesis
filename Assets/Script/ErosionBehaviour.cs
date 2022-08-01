@@ -111,8 +111,6 @@ public class ErosionBehaviour : MonoBehaviour
             timer.Start();
         }
 
-        var heightMapTexture = heightMap.ToTexture();
-
         if (enableDebugFields)
         {
             heightMapSpriteRenderer.gameObject.SetActive(true);
@@ -120,7 +118,7 @@ public class ErosionBehaviour : MonoBehaviour
             hardnessMapSpriteRenderer.gameObject.SetActive(true);
             hardnessMapSpriteRenderer.transform.position = new Vector3(width, 0, -height);
             if (heightMapSpriteRenderer)
-                heightMapSpriteRenderer.sprite = heightMapTexture.ToSprite();
+                heightMapSpriteRenderer.sprite = heightMap.ToTexture().ToSprite();
             if (hardnessMapSpriteRenderer)
                 hardnessMapSpriteRenderer.sprite = hardnessMap.ToTexture().ToSprite();
         }

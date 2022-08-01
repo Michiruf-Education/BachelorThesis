@@ -8,14 +8,23 @@ public partial class FloatField : ValueField<float>
     {
     }
 
-    public Vector3 CalculateNormal(int x, int y)
-    {
-        throw new NotImplementedException("FloatField.CalculateNormal not yet implemented");
-    }
-
     public void BlendValue(int x, int y, BlendMode mode, float value)
     {
         ChangeValue(x, y, f => Blend.Calc(mode, f, value));
+    }
+
+    public void BlendAll(BlendMode mode, float value)
+    {
+        for (var y = 0; y < height; y++)
+        for (var x = 0; x < width; x++)
+            ChangeValue(x, y, f => Blend.Calc(mode, f, value));
+    }
+
+    public void BlendAll(BlendMode mode, FloatField values)
+    {
+        for (var y = 0; y < height; y++)
+        for (var x = 0; x < width; x++)
+            ChangeValue(x, y, (fieldX, fieldY, f) => Blend.Calc(mode, f, values.GetValue(fieldX, fieldY)));
     }
 
     public void Remap(float min, float max)

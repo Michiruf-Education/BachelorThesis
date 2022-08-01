@@ -6,11 +6,14 @@ public class WindErosionSettings
 {
     [Header("Wind settings")] //
     public Vector2 windDirection;
+    public SpriteRenderer sedimentMap;
 
     [Header("Particle settings")] //
     public int maxParticleLifetime = 100000;
     public float gravity = 0.1f;
+    // TODO Rename wind speed?
     public Vector3 initialSpeed = new Vector3(1, 0, 1);
+    // TODO Prevailing factor is the factor taken to apply the general wind direction
     public float prevailingFactor = 0.1f;
 
     [Header("TODO")] //
