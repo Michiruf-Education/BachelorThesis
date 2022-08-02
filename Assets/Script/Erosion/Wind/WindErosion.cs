@@ -7,21 +7,23 @@ public class WindErosion : IErosion
     private readonly WindErosionSettings s;
     private readonly Random random;
 
-    private FloatField heightMap;
+    private IReadableFloatField heightMap;
+    private FloatField groundMap;
     private FloatField sedimentMap;
     private FloatField hardnessMap;
+    private float heightToHardnessFactor;
 
     private WindParticleData d;
     private WindParticleData nd;
 
-    private int index => heightMap.GetIndex(d.positionOfCell.x, d.positionOfCell.y);
-    private int nIndex => heightMap.GetIndex(nd.positionOfCell.x, nd.positionOfCell.y);
-    private float terrainHeight => heightMap.GetValue(d.positionOfCell.x, d.positionOfCell.y) +
+    private int index => groundMap.GetIndex(d.positionOfCell.x, d.positionOfCell.y);
+    private int nIndex => groundMap.GetIndex(nd.positionOfCell.x, nd.positionOfCell.y);
+    private float terrainHeight => groundMap.GetValue(d.positionOfCell.x, d.positionOfCell.y) +
                                    sedimentMap.GetValue(d.positionOfCell.x, d.positionOfCell.y);
-    private float nTerrainHeight => heightMap.GetValue(nd.positionOfCell.x, nd.positionOfCell.y) +
+    private float nTerrainHeight => groundMap.GetValue(nd.positionOfCell.x, nd.positionOfCell.y) +
                                     sedimentMap.GetValue(nd.positionOfCell.x, nd.positionOfCell.y);
-    private bool isInBounds => heightMap.IsInBounds((int)d.position.x, (int)d.position.y);
-    private bool nIsInBounds => heightMap.IsInBounds((int)nd.position.x, (int)nd.position.y);
+    private bool isInBounds => groundMap.IsInBounds((int)d.position.x, (int)d.position.y);
+    private bool nIsInBounds => groundMap.IsInBounds((int)nd.position.x, (int)nd.position.y);
 
     public WindErosion(WindErosionSettings settings, int seed)
     {
@@ -29,11 +31,13 @@ public class WindErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(FloatField heightMap, FloatField sedimentMap, FloatField hardnessMap, float heightToHardnessFactor)
+    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap, float heightToHardnessFactor)
     {
         this.heightMap = heightMap;
+        this.groundMap = groundMap;
         this.hardnessMap = hardnessMap;
         this.sedimentMap = sedimentMap;
+        this.heightToHardnessFactor = heightToHardnessFactor;
     }
 
     public void ErodeStep()
@@ -44,8 +48,8 @@ public class WindErosion : IErosion
         
         // Create wind particle at random position
         d = new WindParticleData(
-            random.Next(0, heightMap.width - 1),
-            random.Next(0, heightMap.height - 1),
+            random.Next(0, groundMap.width - 1),
+            random.Next(0, groundMap.height - 1),
             s.initialSpeed
         );
 
@@ -124,7 +128,7 @@ public class WindErosion : IErosion
         if (sedimentMap[index] <= 0)
         {
             sedimentMap[index] = 0;
-            heightMap[index] -= s.dt * s.abrasion * force * nd.sediment;
+            groundMap[index] -= s.dt * s.abrasion * force * nd.sediment;
             sedimentMap[index] += s.dt * s.abrasion * force * nd.sediment;
         }
 
@@ -154,8 +158,8 @@ public class WindErosion : IErosion
 
     private void Cascade(int index)
     {
-        var px = heightMap.GetXFromIndex(index);
-        var py = heightMap.GetYFromIndex(index);
+        var px = groundMap.GetXFromIndex(index);
+        var py = groundMap.GetYFromIndex(index);
 
         // Neighbor Position Offsets (8-Way)
         var nx = new[]
@@ -171,13 +175,13 @@ public class WindErosion : IErosion
         for (var m = 0; m < 8; m++)
         {
             // Neighbor Out-Of-Bounds
-            if (!heightMap.IsInBounds(px + nx[m], py + ny[m]))
+            if (!groundMap.IsInBounds(px + nx[m], py + ny[m]))
                 continue;
 
-            var neighborIndex = heightMap.GetIndex(px + nx[m], py + ny[m]);
+            var neighborIndex = groundMap.GetIndex(px + nx[m], py + ny[m]);
 
             // Pile size
-            var diff = (heightMap[index] + sedimentMap[index]) - (heightMap[neighborIndex] + sedimentMap[neighborIndex]);
+            var diff = (groundMap[index] + sedimentMap[index]) - (groundMap[neighborIndex] + sedimentMap[neighborIndex]);
             var excess = Mathf.Abs(diff) - s.roughness;
 
             // Stable configuration
@@ -203,8 +207,8 @@ public class WindErosion : IErosion
 
     private Vector3 surfaceNormal(int index, float scale, int radius = 1)
     {
-        var surface = new FloatField(heightMap.width, heightMap.height);
-        surface.BlendAll(BlendMode.Add, heightMap);
+        var surface = new FloatField(groundMap.width, groundMap.height);
+        surface.BlendAll(BlendMode.Add, groundMap);
         surface.BlendAll(BlendMode.Add, sedimentMap);
 
         // Two large triangles adjacent to the plane (+Y -> +X) (-Y -> -X)
@@ -212,7 +216,7 @@ public class WindErosion : IErosion
         var result = Vector3.zero;
         for (var i = 1; i <= radius; i++)
         {
-            var height = heightMap.height;
+            var height = groundMap.height;
             result += (1f / (float)i * i) * Vector3.Cross(
                 new Vector3(0f, scale * (surface[index + i] - surface[index]), i),
                 new Vector3(i, scale * (surface[index + i * height] - surface[index]), 0f)
@@ -242,10 +246,10 @@ public class WindErosion : IErosion
         var P01 = P00 + new Vector2Int(0, 1);
         var P11 = P00 + new Vector2Int(1, 1);
 
-        var N00 = surfaceNormal(heightMap.GetIndex(P00), scale);
-        var N10 = surfaceNormal(heightMap.GetIndex(P10), scale);
-        var N01 = surfaceNormal(heightMap.GetIndex(P01), scale);
-        var N11 = surfaceNormal(heightMap.GetIndex(P11), scale);
+        var N00 = surfaceNormal(groundMap.GetIndex(P00), scale);
+        var N10 = surfaceNormal(groundMap.GetIndex(P10), scale);
+        var N01 = surfaceNormal(groundMap.GetIndex(P01), scale);
+        var N11 = surfaceNormal(groundMap.GetIndex(P11), scale);
 
         // Weights (modulo position)
         // glm::vec2 w = 1.0f-glm::mod(pos, glm::vec2(1.0));

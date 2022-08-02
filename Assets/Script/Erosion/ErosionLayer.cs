@@ -41,7 +41,14 @@ public class ErosionLayer
         var timer = new Stopwatch();
         timer.Start();
 
-        erosion.Init(b.heightMap, b.sedimentMap, b.hardnessMap, b.dynamicHardnessEnabled ? b.heightToHardnessFactor : 0f);
+        erosion.Init(
+            b.heightMap,
+            b.groundMap,
+            b.sedimentMap,
+            b.hardnessMap,
+            b.dynamicHardnessEnabled ? b.heightToHardnessFactor : 0f
+        );
+
         if (b.slowSimulation)
             MyCoroutineHandler.StartCoroutine(ErodeAsync(erosion, b), b, this);
         else

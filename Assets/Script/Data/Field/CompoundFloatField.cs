@@ -1,100 +1,75 @@
-    using System;
-    using UnityEngine;
+using System;
+using System.Linq;
+using UnityEngine;
 
-    public class CompoundFloatField : IFloatField
+public class CompoundFloatField : IReadableFloatField
+{
+    private readonly BlendMode mode;
+    private readonly FloatField[] fields;
+    private FloatField first => fields[0];
+
+    public int width => first.width;
+    public int height => first.height;
+    public int size => first.size;
+
+    public CompoundFloatField(BlendMode mode, params FloatField[] fields)
     {
-        private readonly FloatField[] fields;
-
-        public int size => fields[0].size;
-
-        public CompoundFloatField(params FloatField[] fields)
-        {
-            
-            this.fields = fields;
-        }
+        this.mode = mode;
+        this.fields = fields;
         
-        public int GetIndex(int x, int y)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetIndex(Vector2Int v)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetXFromIndex(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int GetYFromIndex(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float GetValue(int index)
-        {
-            throw new NotImplementedException();
-        }
-
-        public float GetValue(int x, int y)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetValue(int index, float value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SetValue(int x, int y, float value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeValue(int x, int y, Func<float, float> changeFunction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeValue(int x, int y, Func<int, int, float, float> changeFunction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeAll(Func<float, float> changeFunction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void ChangeAll(Func<int, int, float, float> changeFunction)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsInBounds(int x, int y)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BlendValue(int x, int y, BlendMode mode, float value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BlendAll(BlendMode mode, float value)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void BlendAll(BlendMode mode, FloatField values)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void Remap(float min, float max)
-        {
-            throw new NotImplementedException();
-        }
+        var width = first.width;
+        var height = first.height;
+        if (fields.Any(field => field.width != width || field.height != height))
+            throw new ArgumentException("Fields are not of equal size");
     }
+
+    public int GetIndex(int x, int y)
+    {
+        return first.GetIndex(x, y);
+    }
+
+    public int GetIndex(Vector2Int v)
+    {
+        return first.GetIndex(v);
+    }
+
+    public int GetXFromIndex(int index)
+    {
+        return first.GetXFromIndex(index);
+    }
+
+    public int GetYFromIndex(int index)
+    {
+        return first.GetYFromIndex(index);
+    }
+
+    public float GetValue(int index)
+    {
+        return fields.Aggregate(float.NaN, (f, field) => float.IsNaN(f) ? field.GetValue(index) : Blend.Calc(mode, f, field.GetValue(index)));
+    }
+
+    public float GetValue(int x, int y)
+    {
+        return fields.Aggregate(float.NaN, (f, field) => float.IsNaN(f) ? field.GetValue(x, y) : Blend.Calc(mode, f, field.GetValue(x, y)));
+    }
+
+    public bool IsInBounds(int x, int y)
+    {
+        return first.IsInBounds(x, y);
+    }
+
+    public Texture2D ToTexture(string name = "ValueField Texture2D", TextureWrapMode wrapMode = TextureWrapMode.Clamp,
+        FilterMode filterMode = FilterMode.Point)
+    {
+        return first.ToTexture(name, wrapMode, filterMode);
+    }
+
+    public void ApplyToTexture(Texture2D texture)
+    {
+        first.ApplyToTexture(texture);
+    }
+
+    public float this[int index] => GetValue(index);
+
+    public float this[int x, int y] => GetValue(x, y);
+}

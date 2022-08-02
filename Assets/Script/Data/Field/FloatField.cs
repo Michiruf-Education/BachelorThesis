@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-public partial class FloatField : ValueField<float>
+public partial class FloatField : ValueField<float>, IFloatField
 {
     public FloatField(int width, int height) : base(width, height)
     {

@@ -28,11 +28,11 @@
 //         position = new Vector2(x, y);
 //     }
 //
-//     public void Handle(FloatField heightMap)
+//     public void Handle(FloatField groundMap)
 //     {
 //         while (true)
 //         {
-//             var heightOfCell = heightMap.GetValue(positionOfCell.x, positionOfCell.y);
+//             var heightOfCell = groundMap.GetValue(positionOfCell.x, positionOfCell.y);
 //
 //             // Particles under the heightmap are moved upwards
 //             if (height < heightOfCell)
@@ -46,7 +46,7 @@
 //             // When sliding
 //             else
 //             {
-//                 var normal = heightMap.CalculateNormal(positionOfCell.x, positionOfCell.y);
+//                 var normal = groundMap.CalculateNormal(positionOfCell.x, positionOfCell.y);
 //                 velocity += dt * Vector3.Cross(Vector3.Cross(velocity, normal), normal);
 //             }
 //
@@ -64,7 +64,7 @@
 //
 //
 //             // Update heightOfCell
-//             heightOfCell = heightMap.GetValue(positionOfCell.x, positionOfCell.y);
+//             heightOfCell = groundMap.GetValue(positionOfCell.x, positionOfCell.y);
 //             if (height > heightOfCell)
 //             {
 //                 Flying();

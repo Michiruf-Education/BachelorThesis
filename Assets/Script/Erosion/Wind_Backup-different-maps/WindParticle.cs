@@ -41,9 +41,9 @@
 //         return field.GetIndex(positionOfCell.x, positionOfCell.y);
 //     }
 //
-//     public float CalculateTerrainHeight(FloatField heightMap, FloatField sedimentMap)
+//     public float CalculateTerrainHeight(FloatField groundMap, FloatField sedimentMap)
 //     {
-//         return heightMap.GetValue(positionOfCell.x, positionOfCell.y) +
+//         return groundMap.GetValue(positionOfCell.x, positionOfCell.y) +
 //                sedimentMap.GetValue(positionOfCell.x, positionOfCell.y);
 //     }
 // }

@@ -3,10 +3,9 @@ using UnityEngine;
 
 public class ValueField<T> : IValueField<T>
 {
-    public readonly int width;
-    public readonly int height;
-    public readonly T[] values;
-
+    public int width { get; }
+    public int height { get; }
+    public T[] values { get; }
     public int size => width * height;
 
     public ValueField(int width, int height)

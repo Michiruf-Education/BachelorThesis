@@ -12,7 +12,7 @@
 //         random = new Random(seed);
 //     }
 //
-//     public void ErodeStep(FloatField heightMap, FloatField hardnessMap)
+//     public void ErodeStep(FloatField groundMap, FloatField hardnessMap)
 //     {
 //         // TODO maxParticleLifetime makes no sense, this should be used in the particle
 //         //      And the iteration for cycles is already done in the method that calls ErodeStep
@@ -20,11 +20,11 @@
 //         {
 //             // Create wind droplet at random point on map
 //             var particle = new WindParticle(
-//                 random.Next(0, heightMap.width - 1),
-//                 random.Next(0, heightMap.height - 1));
+//                 random.Next(0, groundMap.width - 1),
+//                 random.Next(0, groundMap.height - 1));
 //
 //             // Perform Wind Erosion Cycle
-//             particle.Handle(heightMap, windpath, sediment, track, dim, scale);
+//             particle.Handle(groundMap, windpath, sediment, track, dim, scale);
 //         }
 //
 //         // Update Path

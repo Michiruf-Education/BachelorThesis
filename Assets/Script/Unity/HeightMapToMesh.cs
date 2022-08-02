@@ -6,7 +6,7 @@ using UnityEngine;
 //      https://stackoverflow.com/questions/23552639/how-can-i-make-multiple-meshes-in-unity-by-script
 public class HeightMapToMesh
 {
-    public static void CreateGameObjectForHeightmap(FloatField heightMap, float height)
+    public static void CreateGameObjectForHeightmap(IReadableFloatField heightMap, float height)
     {
         // Create GO and add necessary components
         var go = new GameObject("ProcPlane");
@@ -16,7 +16,7 @@ public class HeightMapToMesh
         ApplyToMeshFilter(meshFilter, heightMap, height);
     }
 
-    public static void ApplyToMeshFilter(MeshFilter meshFilter, FloatField heightMap, float height)
+    public static void ApplyToMeshFilter(MeshFilter meshFilter, IReadableFloatField heightMap, float height)
     {
         // Assign Mesh object to MeshFilter
         if (!meshFilter.sharedMesh)
@@ -24,7 +24,7 @@ public class HeightMapToMesh
         meshFilter.sharedMesh = UpdateMesh(meshFilter.sharedMesh, heightMap, height);
     }
 
-    public static Mesh UpdateMesh(Mesh mesh, FloatField heightMap, float height)
+    public static Mesh UpdateMesh(Mesh mesh, IReadableFloatField heightMap, float height)
     {
         var verts = new List<Vector3>();
         var tris = new List<int>();
