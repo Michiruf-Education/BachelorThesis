@@ -33,7 +33,7 @@ public class ErosionBehaviour : MonoBehaviour
     public List<NoiseLayer> heightNoiseLayers;
 
     [Separator("Sediment generation")] //
-    [OverrideLabel("Remap height")]
+    [OverrideLabel("Remap sediment")]
     public bool remapSedimentAfterNoises = true;
     [OverrideLabel("Min")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] //
     public float remapSedimentAfterNoisesMin;
@@ -57,7 +57,7 @@ public class ErosionBehaviour : MonoBehaviour
 
     [Separator("Dynamic hardness")] //
     public bool dynamicHardnessEnabled;
-    public float heightToHardnessFactor;
+    public float groundToHardnessFactor;
 
     [Separator("Erosion")] //
     public bool normalizeAfterErosion = true;

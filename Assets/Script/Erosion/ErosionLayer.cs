@@ -46,7 +46,7 @@ public class ErosionLayer
             b.groundMap,
             b.sedimentMap,
             b.hardnessMap,
-            b.dynamicHardnessEnabled ? b.heightToHardnessFactor : 0f
+            b.dynamicHardnessEnabled ? b.groundToHardnessFactor : 0f
         );
 
         if (b.slowSimulation)

@@ -11,7 +11,7 @@ public class WindErosion : IErosion
     private FloatField groundMap;
     private FloatField sedimentMap;
     private FloatField hardnessMap;
-    private float heightToHardnessFactor;
+    private float groundToHardnessFactor;
 
     private WindParticleData d;
     private WindParticleData nd;
@@ -31,13 +31,13 @@ public class WindErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap, float heightToHardnessFactor)
+    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap, float groundToHardnessFactor)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
         this.hardnessMap = hardnessMap;
         this.sedimentMap = sedimentMap;
-        this.heightToHardnessFactor = heightToHardnessFactor;
+        this.groundToHardnessFactor = groundToHardnessFactor;
     }
 
     public void ErodeStep()
@@ -48,18 +48,14 @@ public class WindErosion : IErosion
         
         // Create wind particle at random position
         d = new WindParticleData(
+            // TODO NextFloat!
             random.Next(0, groundMap.width - 1),
             random.Next(0, groundMap.height - 1),
             s.initialSpeed
         );
 
         // TODO Only used for debugging
-        var cV = new FloatField(3, 1);
-        cV.SetValue(0, random.Next());
-        cV.SetValue(1, random.Next());
-        cV.SetValue(2, random.Next());
-        cV.Remap(0, 1);
-        var c = new Color(cV[0], cV[1], cV[2]);
+        var c = new Color(UnityEngine.Random.value,UnityEngine.Random.value,UnityEngine.Random.value);
 
         for (var i = 0; i < s.maxParticleLifetime; i++)
         {
