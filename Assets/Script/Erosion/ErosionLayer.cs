@@ -13,12 +13,12 @@ public class ErosionLayer
     public int seed;
     public int iterations;
 
-    [ConditionalField("type", false, ErosionType.Hydraulic)]
+    [ConditionalField("type", false, ErosionType.Hydraulic)] //
     public HydraulicErosionSettings hydraulicErosionSettings;
-    [ConditionalField("type", false, ErosionType.Wind)]
+    [ConditionalField("type", false, ErosionType.Wind)] //
     public WindErosionSettings windErosionSettings;
 
-    public void Apply(FloatField heightMap, FloatField hardnessMap, ErosionBehaviour b)
+    public void Apply(ErosionBehaviour b)
     {
         if (!enabled)
             return;
@@ -26,22 +26,22 @@ public class ErosionLayer
         switch (type)
         {
             case ErosionType.Hydraulic:
-                Erode(new HydraulicErosion(hydraulicErosionSettings, seed), heightMap, hardnessMap, b);
+                Erode(new HydraulicErosion(hydraulicErosionSettings, seed), b);
                 break;
             case ErosionType.Wind:
-                Erode(new WindErosion(windErosionSettings, seed), heightMap, hardnessMap, b);
+                Erode(new WindErosion(windErosionSettings, seed), b);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
     }
 
-    private void Erode(IErosion erosion, FloatField heightMap, FloatField hardnessMap, ErosionBehaviour b)
+    private void Erode(IErosion erosion, ErosionBehaviour b)
     {
         var timer = new Stopwatch();
         timer.Start();
 
-        erosion.Init(heightMap,  hardnessMap);
+        erosion.Init(b.heightMap, b.sedimentMap, b.hardnessMap, b.dynamicHardnessEnabled ? b.heightToHardnessFactor : 0f);
         if (b.slowSimulation)
             MyCoroutineHandler.StartCoroutine(ErodeAsync(erosion, b), b, this);
         else

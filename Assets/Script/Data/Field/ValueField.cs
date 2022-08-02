@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-public class ValueField<T>
+public class ValueField<T> : IValueField<T>
 {
     public readonly int width;
     public readonly int height;

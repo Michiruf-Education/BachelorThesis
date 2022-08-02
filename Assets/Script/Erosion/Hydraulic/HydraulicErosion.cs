@@ -8,7 +8,9 @@ public class HydraulicErosion : IErosion
     private readonly Random random;
 
     private FloatField heightMap;
+    private FloatField sedimentMap;
     private FloatField hardnessMap;
+    private float heightToHardnessFactor;
 
     // Indices and weights of erosion brush precomputed for every node
     private int[][] erosionBrushIndices;
@@ -20,10 +22,12 @@ public class HydraulicErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(FloatField heightMap, FloatField hardnessMap)
+    public void Init(FloatField heightMap, FloatField sedimentMap, FloatField hardnessMap, float heightToHardnessFactor)
     {
         this.heightMap = heightMap;
+        this.sedimentMap = sedimentMap;
         this.hardnessMap = hardnessMap;
+        this.heightToHardnessFactor = heightToHardnessFactor;
         // if (heightMap.width != hardnessMap.width || heightMap.height != hardnessMap.height)
         //     throw new Exception("HeightMap and HardnessMap not of same bounds");
         InitializeBrushIndices(heightMap.width, s.erosionRadius);
@@ -111,6 +115,8 @@ public class HydraulicErosion : IErosion
                     // var deltaSediment = heightMap.values[nodeIndex] < weighedErodeAmount ? heightMap.values[nodeIndex] : weighedErodeAmount;
                     heightMap.values[nodeIndex] -= deltaSediment;
                     droplet.sediment += deltaSediment;
+
+                    hardnessMap[nodeIndex] += deltaSediment * heightToHardnessFactor;
                 }
             }
 

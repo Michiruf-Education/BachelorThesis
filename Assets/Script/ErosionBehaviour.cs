@@ -21,12 +21,43 @@ public class ErosionBehaviour : MonoBehaviour
     [ConditionalField("mode", false, RenderMode.TesselationMaterial)] //
     public MeshRenderer targetRenderer;
 
-    [Separator("Noises")] //
-    public bool normalizeHeightAfterNoises = true;
+    [Separator("Height generation")] //
+    [OverrideLabel("Remap height")]
+    public bool remapHeightAfterNoises = true;
+    [OverrideLabel("Min")] [ConditionalField("remapHeightAfterNoises", compareValues: true)] //
+    public float remapHeightAfterNoisesMin;
+    [OverrideLabel("Max")] [ConditionalField("remapHeightAfterNoises", compareValues: true)] // 
+    public float remapHeightAfterNoisesMax = 1f;
+    [OverrideLabel("Clamp (after remap)")] //
+    public bool clampHeightAfterNoises;
     public List<NoiseLayer> heightNoiseLayers;
-    public bool normalizeHardnessAfterNoises = true;
-    public float hardnessExponentialFactor = 1f;
+
+    [Separator("Sediment generation")] //
+    [OverrideLabel("Remap height")]
+    public bool remapSedimentAfterNoises = true;
+    [OverrideLabel("Min")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] //
+    public float remapSedimentAfterNoisesMin;
+    [OverrideLabel("Max")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] // 
+    public float remapSedimentAfterNoisesMax = 1f;
+    [OverrideLabel("Clamp (after remap)")] //
+    public bool clampSedimentAfterNoises;
+    public List<NoiseLayer> sedimentNoiseLayers;
+
+    [Separator("Hardness generation")] //
+    [OverrideLabel("Remap hardness")]
+    public bool remapHardnessAfterNoises = true;
+    [OverrideLabel("Min")] [ConditionalField("remapHardnessAfterNoises", compareValues: true)] //
+    public float remapHardnessAfterNoisesMin;
+    [OverrideLabel("Max")] [ConditionalField("remapHardnessAfterNoises", compareValues: true)] //
+    public float remapHardnessAfterNoisesMax = 1f;
+    [OverrideLabel("Clamp (after remap)")] //
+    public bool clampHardnessAfterNoises;
+    public float hardnessExponentialModifier = 1f;
     public List<NoiseLayer> hardnessNoiseLayers;
+
+    [Separator("Dynamic hardness")] //
+    public bool dynamicHardnessEnabled;
+    public float heightToHardnessFactor;
 
     [Separator("Erosion")] //
     public bool normalizeAfterErosion = true;
@@ -34,9 +65,11 @@ public class ErosionBehaviour : MonoBehaviour
 
     [Separator("Debug fields")] //
     public bool enableDebugFields;
-    [ConditionalField("enableDebugFields", false, true)]
+    [ConditionalField("enableDebugFields", false, true)] //
     public SpriteRenderer heightMapSpriteRenderer;
-    [ConditionalField("enableDebugFields", false, true)]
+    [ConditionalField("enableDebugFields", false, true)] //
+    public SpriteRenderer sedimentMapSpriteRenderer;
+    [ConditionalField("enableDebugFields", false, true)] //
     public SpriteRenderer hardnessMapSpriteRenderer;
 
     [Separator("Slow simulation")] //
@@ -50,8 +83,9 @@ public class ErosionBehaviour : MonoBehaviour
     public bool enableInEditor;
 
     // Runtime variables
-    private FloatField heightMap;
-    private FloatField hardnessMap;
+    internal FloatField heightMap;
+    internal FloatField sedimentMap;
+    internal FloatField hardnessMap;
 
     void Start()
     {
@@ -78,15 +112,29 @@ public class ErosionBehaviour : MonoBehaviour
         timer.Start();
 
         heightNoiseLayers.ForEach(layer => layer.Apply(heightMap));
+        sedimentNoiseLayers.ForEach(layer => layer.Apply(sedimentMap));
         hardnessNoiseLayers.ForEach(layer => layer.Apply(hardnessMap));
 
-        // Normalize / remap those maps
-        if (normalizeHeightAfterNoises)
-            heightMap.Remap(0, 1);
-        if (normalizeHardnessAfterNoises)
-            hardnessMap.Remap(0, 1);
+        // Remap height
+        if(remapHeightAfterNoises)
+            heightMap.Remap(remapHeightAfterNoisesMin, remapHeightAfterNoisesMax);
+        if(clampHeightAfterNoises)
+            heightMap.ChangeAll(Mathf.Clamp01);
+
+        // Remap sediment
+        if(remapSedimentAfterNoises)
+            sedimentMap.Remap(remapSedimentAfterNoisesMin, remapSedimentAfterNoisesMax);
+        if(clampSedimentAfterNoises)
+            sedimentMap.ChangeAll(Mathf.Clamp01);
         
-        hardnessMap.ChangeAll(f => Mathf.Pow(f, hardnessExponentialFactor));
+        // Remap hardness
+        if(remapHardnessAfterNoises)
+            hardnessMap.Remap(remapHardnessAfterNoisesMin, remapHardnessAfterNoisesMax);
+        if(clampHardnessAfterNoises)
+            hardnessMap.ChangeAll(Mathf.Clamp01);
+        
+        // Apply exponential factor to hardness
+        hardnessMap.ChangeAll(f => Mathf.Pow(f, hardnessExponentialModifier));
 
         timer.Stop();
         Debug.Log($"All noises finished after {timer.ElapsedMilliseconds}ms");
@@ -97,7 +145,7 @@ public class ErosionBehaviour : MonoBehaviour
         var timer = new Stopwatch();
         timer.Start();
 
-        erosionLayers.ForEach(layer => layer.Apply(heightMap, hardnessMap, this));
+        erosionLayers.ForEach(layer => layer.Apply(this));
 
         timer.Stop();
         Debug.Log($"All erosion finished after {timer.ElapsedMilliseconds}ms");

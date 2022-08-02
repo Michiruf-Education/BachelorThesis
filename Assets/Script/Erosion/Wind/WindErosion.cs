@@ -29,11 +29,11 @@ public class WindErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(FloatField heightMap, FloatField hardnessMap)
+    public void Init(FloatField heightMap, FloatField sedimentMap, FloatField hardnessMap, float heightToHardnessFactor)
     {
         this.heightMap = heightMap;
         this.hardnessMap = hardnessMap;
-        sedimentMap = new FloatField(heightMap.width, heightMap.height);
+        this.sedimentMap = sedimentMap;
     }
 
     public void ErodeStep()
