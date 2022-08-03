@@ -42,7 +42,7 @@ public struct Droplet
         sediment = droplet.sediment;
     }
 
-    public int CalculateIndex(FloatField field)
+    public int CalculateIndex(IReadableFloatField field)
     {
         return field.GetIndex(cellPositionInt.x, cellPositionInt.y);
     }

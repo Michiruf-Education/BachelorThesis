@@ -22,7 +22,8 @@ public class HydraulicErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap, float groundToHardnessFactor)
+    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap,
+        float groundToHardnessFactor)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
@@ -36,8 +37,8 @@ public class HydraulicErosion : IErosion
     {
         // Create water droplet at random point on map
         var droplet = new Droplet(
-            random.Next(0, groundMap.width - 1),
-            random.Next(0, groundMap.height - 1),
+            random.NextFloat(0, heightMap.width - 1),
+            random.NextFloat(0, heightMap.height - 1),
             s.initialSpeed,
             s.initialWaterVolume);
 
@@ -46,7 +47,7 @@ public class HydraulicErosion : IErosion
             var originalDroplet = new Droplet(droplet);
 
             // Calculate droplet's height and direction of flow with bilinear interpolation of surrounding heights
-            var heightAndGradient = HeightAndGradient.Calculate(groundMap, droplet);
+            var heightAndGradient = HeightAndGradient.Calculate(heightMap, droplet);
 
             // Update the droplet's direction and position (move position 1 unit regardless of speed)
             droplet.direction += new Vector2(
@@ -58,12 +59,12 @@ public class HydraulicErosion : IErosion
 
             // Stop simulating droplet if it's not moving or has flowed over edge of map
             if (droplet.direction.x == 0 && droplet.direction.y == 0 ||
-                droplet.position.x < 0 || droplet.position.x >= groundMap.width - 1 ||
-                droplet.position.y < 0 || droplet.position.y >= groundMap.height - 1)
+                droplet.position.x < 0 || droplet.position.x >= heightMap.width - 1 ||
+                droplet.position.y < 0 || droplet.position.y >= heightMap.height - 1)
                 break;
 
             // Find the droplet's new height and calculate the deltaHeight
-            var newHeight = HeightAndGradient.Calculate(groundMap, droplet).height;
+            var newHeight = HeightAndGradient.Calculate(heightMap, droplet).height;
             var deltaHeight = newHeight - heightAndGradient.height;
 
             // Calculate the droplet's sediment capacity (higher when moving fast down a slope and contains lots of water)
@@ -84,12 +85,12 @@ public class HydraulicErosion : IErosion
 
                 // Add the sediment to the four nodes of the current cell using bilinear interpolation
                 // Deposition is not distributed over a radius (like erosion) so that it can fill small pits
-                var dropletIndex = originalDroplet.CalculateIndex(groundMap);
+                var dropletIndex = originalDroplet.CalculateIndex(heightMap);
                 var dropletCell = originalDroplet.cellPositionInt;
-                groundMap[dropletIndex] += amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y);
-                groundMap[dropletIndex + 1] += amountToDeposit * cellOffset.x * (1 - cellOffset.y);
-                groundMap[dropletIndex + groundMap.width] += amountToDeposit * (1 - cellOffset.x) * cellOffset.y;
-                groundMap[dropletIndex + groundMap.width + 1] += amountToDeposit * cellOffset.x * cellOffset.y;
+                sedimentMap[dropletIndex] += amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y);
+                sedimentMap[dropletIndex + 1] += amountToDeposit * cellOffset.x * (1 - cellOffset.y);
+                sedimentMap[dropletIndex + heightMap.width] += amountToDeposit * (1 - cellOffset.x) * cellOffset.y;
+                sedimentMap[dropletIndex + heightMap.width + 1] += amountToDeposit * cellOffset.x * cellOffset.y;
                 // groundMap.BlendValue(dropletCell.x, dropletCell.y, BlendMode.Add, amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y));
                 // groundMap.BlendValue(dropletCell.x + 1, dropletCell.y, BlendMode.Add, amountToDeposit * cellOffset.x * (1 - cellOffset.y));
                 // groundMap.BlendValue(dropletCell.x, dropletCell.y + 1, BlendMode.Add, amountToDeposit * (1 - cellOffset.x) * cellOffset.y);
@@ -104,18 +105,25 @@ public class HydraulicErosion : IErosion
                     -deltaHeight);
 
                 // Use erosion brush to erode from all nodes inside the droplet's erosion radius
-                var dropletIndex = originalDroplet.CalculateIndex(groundMap);
+                var dropletIndex = originalDroplet.CalculateIndex(heightMap);
                 for (var brushPointIndex = 0; brushPointIndex < erosionBrushIndices[dropletIndex].Length; brushPointIndex++)
                 {
                     var nodeIndex = erosionBrushIndices[dropletIndex][brushPointIndex];
-                    var weighedErodeAmount = amountToErode * erosionBrushWeights[dropletIndex][brushPointIndex];
-                    var deltaSedimentIncludingHardness = weighedErodeAmount * (1f - hardnessMap[nodeIndex]);
-                    var deltaSediment = groundMap[nodeIndex] < weighedErodeAmount ? groundMap[nodeIndex] : deltaSedimentIncludingHardness;
-                    // var deltaSediment = groundMap[nodeIndex] < weighedErodeAmount ? groundMap[nodeIndex] : weighedErodeAmount;
-                    groundMap[nodeIndex] -= deltaSediment;
-                    droplet.sediment += deltaSediment;
+                    var erodeAmount = amountToErode * erosionBrushWeights[dropletIndex][brushPointIndex];
 
-                    hardnessMap[nodeIndex] += deltaSediment * groundToHardnessFactor;
+                    // Sediment gets eroded ignoring hardness, ground uses hardness
+                    var removeSediment = Mathf.Min(sedimentMap[nodeIndex], erodeAmount);
+                    var removeGround = (erodeAmount - removeSediment) * (1f - hardnessMap[nodeIndex]);
+                    if (!s.allowNegativeGroundValues)
+                        removeGround = Mathf.Min(groundMap[nodeIndex], removeGround);
+
+                    // Update each map
+                    groundMap[nodeIndex] -= removeGround;
+                    sedimentMap[nodeIndex] -= removeSediment;
+                    hardnessMap[nodeIndex] += removeGround * groundToHardnessFactor;
+
+                    // Update droplet sediment amount
+                    droplet.sediment += removeSediment + removeGround;
                 }
             }
 

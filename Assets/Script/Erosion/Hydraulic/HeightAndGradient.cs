@@ -4,7 +4,7 @@ public struct HeightAndGradient
     public float gradientX;
     public float gradientY;
 
-    public static HeightAndGradient Calculate(FloatField field, Droplet droplet)
+    public static HeightAndGradient Calculate(IReadableFloatField field, Droplet droplet)
     {
         // Get droplet's offset inside the cell (0,0) = at NW node, (1,1) = at SE node
         var offset = droplet.cellOffset;

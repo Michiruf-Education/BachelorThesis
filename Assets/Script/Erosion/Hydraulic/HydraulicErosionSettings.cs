@@ -21,4 +21,7 @@ public class HydraulicErosionSettings
 
     public float initialWaterVolume = 1;
     public float initialSpeed = 1;
+
+    [Tooltip("Can the ground go to negative values? Consider using width 'Normalize After Erosion'")]
+    public bool allowNegativeGroundValues;
 }

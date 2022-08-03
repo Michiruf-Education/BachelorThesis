@@ -42,10 +42,6 @@ public class WindErosion : IErosion
 
     public void ErodeStep()
     {
-        // Visualize sediment map
-        if (s.sedimentMap)
-            s.sedimentMap.sprite = sedimentMap.ToTexture().ToSprite();
-        
         // Create wind particle at random position
         d = new WindParticleData(
             // TODO NextFloat!
