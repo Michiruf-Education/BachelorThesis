@@ -8,7 +8,7 @@ public class WaterMeshGenerator : MonoBehaviour
 
     void Start()
     {
-        HeightMapToMesh.ApplyToMeshFilter(
+        FloatFieldToMesh.ApplyToMeshFilter(
             GetComponent<MeshFilter>(),
             new FloatField(width, height), 0);
     }

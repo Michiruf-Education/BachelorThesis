@@ -81,6 +81,7 @@ public class ErosionBehaviour : MonoBehaviour
     [Separator("Editor")] //
     public bool redrawOnChange;
     public bool enableInEditor;
+    public Camera screenshotCamera;
 
     // Runtime variables
     internal CompoundFloatField heightMap;
@@ -191,7 +192,7 @@ public class ErosionBehaviour : MonoBehaviour
         switch (mode)
         {
             case RenderMode.UpdateMesh:
-                HeightMapToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
+                FloatFieldToMesh.ApplyToMeshFilter(targetFilter, heightMap, terrainHeight);
                 break;
             case RenderMode.TesselationMaterial:
                 throw new NotImplementedException("Tesselation not yet implemented.");
