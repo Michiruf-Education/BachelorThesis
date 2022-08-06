@@ -81,7 +81,8 @@ public class ErosionBehaviour : MonoBehaviour
     [Separator("Editor")] //
     public bool redrawOnChange;
     public bool enableInEditor;
-    public Camera screenshotCamera;
+    public Camera screenshotCameraOrthographic;
+    public Camera screenshotCameraPerspective;
 
     // Runtime variables
     internal CompoundFloatField heightMap;

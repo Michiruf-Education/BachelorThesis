@@ -80,7 +80,8 @@ public class ErosionBehaviourEditor : Editor
             SaveTexture(t.groundMap, t, now, "ground", false);
             SaveTexture(t.hardnessMap, t, now, "hardness", false);
             SaveTexture(t.sedimentMap, t, now, "sediment", false);
-            SaveScreenshot(t.screenshotCamera, t, now, "terrain", false);
+            SaveScreenshot(t.screenshotCameraOrthographic, t, now, "terrain_orthographic", false);
+            SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", false);
             SaveUnityData(t, now);
         }
 
@@ -89,7 +90,8 @@ public class ErosionBehaviourEditor : Editor
             SaveTexture(t.groundMap, t, now, "ground", true);
             SaveTexture(t.hardnessMap, t, now, "hardness", true);
             SaveTexture(t.sedimentMap, t, now, "sediment", true);
-            SaveScreenshot(t.screenshotCamera, t, now, "terrain", true);
+            SaveScreenshot(t.screenshotCameraOrthographic, t, now, "terrain_orthographic", true);
+            SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", true);
             SaveUnityData(t, now);
         }
     }
@@ -131,20 +133,6 @@ public class ErosionBehaviourEditor : Editor
 
     private void SaveScreenshot(Camera camera, ErosionBehaviour t, DateTime dateTime, string basename, bool eroded)
     {
-        // TODO ScreenCapture.CaptureScreenshotAsTexture only works in play work
-        // TODO Remove this
-        // // Disable and save previous camera
-        // var previousCameras = Camera.allCameras.ForEach(cam => cam.enabled = false).ToList();
-        // var cameraWasActive = camera.gameObject.activeSelf;
-        // camera.gameObject.SetActive(true);
-        //
-        // var screenshot = ScreenCapture.CaptureScreenshotAsTexture();
-        //
-        // // Restore previous state
-        // camera.gameObject.SetActive(cameraWasActive);
-        // previousCameras.ForEach(cam => cam.enabled = false);
-
-
         var rect = new RectInt(0, 0, 1920, 1080);
 
         var previousCameraTargetTexture = camera.targetTexture;
@@ -170,21 +158,6 @@ public class ErosionBehaviourEditor : Editor
         // Clear for GC
         DestroyImmediate(renderTexture);
         DestroyImmediate(screenshot);
-
-
-        // TODO Remove this
-        // var cameraTarget = camera.targetTexture;
-        // var previousRenderTexture = RenderTexture.active;
-        //
-        // RenderTexture.active = cameraTarget;
-        // camera.Render();
-        // var screenshot = new Texture2D(cameraTarget.width, cameraTarget.height, TextureFormat.RGB24, false);
-        // screenshot.ReadPixels(new Rect(0, 0, cameraTarget.width, cameraTarget.height), 0, 0);
-        // screenshot.Apply();
-        //
-        // RenderTexture.active = previousRenderTexture;
-        //
-        // SaveTexture(screenshot, t, dateTime, basename, eroded);
     }
 
     private void SaveUnityData(ErosionBehaviour t, DateTime dateTime)
