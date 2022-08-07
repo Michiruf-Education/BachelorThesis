@@ -11,6 +11,7 @@ public class HydraulicErosion : IErosion
     private FloatField sedimentMap;
     private FloatField hardnessMap;
     private float groundToHardnessFactor;
+    private bool sedimentMapEnabled;
 
     // Indices and weights of erosion brush precomputed for every node
     private int[][] erosionBrushIndices;
@@ -23,13 +24,14 @@ public class HydraulicErosion : IErosion
     }
 
     public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap,
-        float groundToHardnessFactor)
+        float groundToHardnessFactor, bool sedimentMapEnabled)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
         this.sedimentMap = sedimentMap;
         this.hardnessMap = hardnessMap;
         this.groundToHardnessFactor = groundToHardnessFactor;
+        this.sedimentMapEnabled = sedimentMapEnabled;
         InitializeBrushIndices(groundMap.width, s.erosionRadius);
     }
 
@@ -75,8 +77,6 @@ public class HydraulicErosion : IErosion
             // If carrying more sediment than capacity, or if flowing uphill:
             if (droplet.sediment > sedimentCapacity || deltaHeight > 0)
             {
-                var cellOffset = originalDroplet.cellOffset;
-
                 // If moving uphill (deltaHeight > 0) try fill up to the current height, otherwise deposit a fraction of the excess sediment
                 var amountToDeposit = deltaHeight > 0
                     ? Mathf.Min(deltaHeight, droplet.sediment)
@@ -86,15 +86,12 @@ public class HydraulicErosion : IErosion
                 // Add the sediment to the four nodes of the current cell using bilinear interpolation
                 // Deposition is not distributed over a radius (like erosion) so that it can fill small pits
                 var dropletIndex = originalDroplet.CalculateIndex(heightMap);
-                var dropletCell = originalDroplet.cellPositionInt;
-                sedimentMap[dropletIndex] += amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y);
-                sedimentMap[dropletIndex + 1] += amountToDeposit * cellOffset.x * (1 - cellOffset.y);
-                sedimentMap[dropletIndex + heightMap.width] += amountToDeposit * (1 - cellOffset.x) * cellOffset.y;
-                sedimentMap[dropletIndex + heightMap.width + 1] += amountToDeposit * cellOffset.x * cellOffset.y;
-                // groundMap.BlendValue(dropletCell.x, dropletCell.y, BlendMode.Add, amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y));
-                // groundMap.BlendValue(dropletCell.x + 1, dropletCell.y, BlendMode.Add, amountToDeposit * cellOffset.x * (1 - cellOffset.y));
-                // groundMap.BlendValue(dropletCell.x, dropletCell.y + 1, BlendMode.Add, amountToDeposit * (1 - cellOffset.x) * cellOffset.y);
-                // groundMap.BlendValue(dropletCell.x + 1, dropletCell.y + 1, BlendMode.Add, amountToDeposit * cellOffset.x * cellOffset.y);
+                var cellOffset = originalDroplet.cellOffset;
+                var targetMap = sedimentMapEnabled ? sedimentMap : groundMap;
+                targetMap[dropletIndex] += amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y);
+                targetMap[dropletIndex + 1] += amountToDeposit * cellOffset.x * (1 - cellOffset.y);
+                targetMap[dropletIndex + heightMap.width] += amountToDeposit * (1 - cellOffset.x) * cellOffset.y;
+                targetMap[dropletIndex + heightMap.width + 1] += amountToDeposit * cellOffset.x * cellOffset.y;
             }
             else
             {
@@ -112,6 +109,7 @@ public class HydraulicErosion : IErosion
                     var erodeAmount = amountToErode * erosionBrushWeights[dropletIndex][brushPointIndex];
 
                     // Sediment gets eroded ignoring hardness, ground uses hardness
+                    // If the sediment is not enabled, then there will be always 0
                     var removeSediment = Mathf.Min(sedimentMap[nodeIndex], erodeAmount);
                     var removeGround = (erodeAmount - removeSediment) * (1f - hardnessMap[nodeIndex]);
                     if (!s.allowNegativeGroundValues)

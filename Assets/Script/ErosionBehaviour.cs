@@ -61,6 +61,7 @@ public class ErosionBehaviour : MonoBehaviour
 
     [Separator("Erosion")] //
     public bool normalizeAfterErosion = true;
+    public bool sedimentMapEnabled = true;
     public List<ErosionLayer> erosionLayers;
 
     [Separator("Debug fields")] //

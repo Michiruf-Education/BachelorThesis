@@ -12,6 +12,7 @@ public class WindErosion : IErosion
     private FloatField sedimentMap;
     private FloatField hardnessMap;
     private float groundToHardnessFactor;
+    private bool sedimentMapEnabled;
 
     private WindParticleData d;
     private WindParticleData nd;
@@ -31,13 +32,15 @@ public class WindErosion : IErosion
         random = new Random(seed);
     }
 
-    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap, float groundToHardnessFactor)
+    public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap,
+        float groundToHardnessFactor, bool sedimentMapEnabled)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
         this.hardnessMap = hardnessMap;
         this.sedimentMap = sedimentMap;
         this.groundToHardnessFactor = groundToHardnessFactor;
+        this.sedimentMapEnabled = sedimentMapEnabled;
     }
 
     public void ErodeStep()

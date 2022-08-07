@@ -119,6 +119,9 @@ public class ErosionBehaviourEditor : Editor
 
             if (t.dynamicHardnessEnabled)
                 sb.Append("_").Append("dynamic-").Append(t.groundToHardnessFactor);
+
+            if (t.sedimentMapEnabled)
+                sb.Append("_sediment");
         }
 
         var path = sb.Append(".png").ToString();
