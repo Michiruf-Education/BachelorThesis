@@ -12,10 +12,7 @@ public class HydraulicErosion : IErosion
     private FloatField hardnessMap;
     private float groundToHardnessFactor;
     private bool sedimentMapEnabled;
-
-    // Indices and weights of erosion brush precomputed for every node
-    private int[][] erosionBrushIndices;
-    private float[][] erosionBrushWeights;
+    private Brush brush;
 
     public HydraulicErosion(HydraulicErosionSettings settings, int seed)
     {
@@ -32,7 +29,7 @@ public class HydraulicErosion : IErosion
         this.hardnessMap = hardnessMap;
         this.groundToHardnessFactor = groundToHardnessFactor;
         this.sedimentMapEnabled = sedimentMapEnabled;
-        InitializeBrushIndices(groundMap.width, s.erosionRadius);
+        brush = new Brush(heightMap.width, heightMap.height, s.erosionRadius);
     }
 
     public void ErodeStep()
@@ -102,88 +99,32 @@ public class HydraulicErosion : IErosion
                     -deltaHeight);
 
                 // Use erosion brush to erode from all nodes inside the droplet's erosion radius
-                var dropletIndex = originalDroplet.CalculateIndex(heightMap);
-                for (var brushPointIndex = 0; brushPointIndex < erosionBrushIndices[dropletIndex].Length; brushPointIndex++)
+                var brushAtPosition = brush.brushMap[originalDroplet.cellPositionInt.x, originalDroplet.cellPositionInt.y];
+                foreach (var brushPoint in brushAtPosition)
                 {
-                    var nodeIndex = erosionBrushIndices[dropletIndex][brushPointIndex];
-                    var erodeAmount = amountToErode * erosionBrushWeights[dropletIndex][brushPointIndex];
+                    var erodeAmount = amountToErode * brushPoint.weight;
+                    var currentIndex = brushPoint.index;
 
                     // Sediment gets eroded ignoring hardness, ground uses hardness
                     // If the sediment is not enabled, then there will be always 0
-                    var removeSediment = Mathf.Min(sedimentMap[nodeIndex], erodeAmount);
-                    var removeGround = (erodeAmount - removeSediment) * (1f - hardnessMap[nodeIndex]);
+                    var removeSediment = Mathf.Min(sedimentMap[currentIndex], erodeAmount);
+                    var removeGround = (erodeAmount - removeSediment) * (1f - hardnessMap[currentIndex]);
                     if (!s.allowNegativeGroundValues)
-                        removeGround = Mathf.Min(groundMap[nodeIndex], removeGround);
+                        removeGround = Mathf.Min(groundMap[currentIndex], removeGround);
 
                     // Update each map
-                    groundMap[nodeIndex] -= removeGround;
-                    sedimentMap[nodeIndex] -= removeSediment;
-                    hardnessMap[nodeIndex] += removeGround * groundToHardnessFactor;
+                    groundMap[currentIndex] -= removeGround;
+                    sedimentMap[currentIndex] -= removeSediment;
+                    hardnessMap[currentIndex] += removeGround * groundToHardnessFactor;
 
                     // Update droplet sediment amount
                     droplet.sediment += removeSediment + removeGround;
-                }
+                } 
             }
 
             // Update droplet's speed and water content
             droplet.speed = Mathf.Sqrt(droplet.speed * droplet.speed + deltaHeight * s.gravity);
             droplet.water *= 1 - s.evaporateSpeed;
-        }
-    }
-
-    void InitializeBrushIndices(int mapSize, int radius)
-    {
-        erosionBrushIndices = new int[mapSize * mapSize][];
-        erosionBrushWeights = new float[mapSize * mapSize][];
-
-        var xOffsets = new int[radius * radius * 4];
-        var yOffsets = new int[radius * radius * 4];
-        var weights = new float[radius * radius * 4];
-        float weightSum = 0;
-        var addIndex = 0;
-
-        for (var i = 0; i < erosionBrushIndices.GetLength(0); i++)
-        {
-            var centreX = i % mapSize;
-            var centreY = i / mapSize;
-
-            if (centreY <= radius || centreY >= mapSize - radius || centreX <= radius + 1 || centreX >= mapSize - radius)
-            {
-                weightSum = 0;
-                addIndex = 0;
-                for (var y = -radius; y <= radius; y++)
-                {
-                    for (var x = -radius; x <= radius; x++)
-                    {
-                        float sqrDst = x * x + y * y;
-                        if (sqrDst < radius * radius)
-                        {
-                            var coordX = centreX + x;
-                            var coordY = centreY + y;
-
-                            if (coordX >= 0 && coordX < mapSize && coordY >= 0 && coordY < mapSize)
-                            {
-                                var weight = 1 - Mathf.Sqrt(sqrDst) / radius;
-                                weightSum += weight;
-                                weights[addIndex] = weight;
-                                xOffsets[addIndex] = x;
-                                yOffsets[addIndex] = y;
-                                addIndex++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            var numEntries = addIndex;
-            erosionBrushIndices[i] = new int[numEntries];
-            erosionBrushWeights[i] = new float[numEntries];
-
-            for (var j = 0; j < numEntries; j++)
-            {
-                erosionBrushIndices[i][j] = (yOffsets[j] + centreY) * mapSize + xOffsets[j] + centreX;
-                erosionBrushWeights[i][j] = weights[j] / weightSum;
-            }
         }
     }
 }
