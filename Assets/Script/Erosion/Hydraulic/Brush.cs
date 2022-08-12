@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -57,21 +58,63 @@ public class Brush
                 {
                     position = new Vector2Int(coordX, coordY),
                     index = brushMap.GetIndex(coordX, coordY),
-                    weight = 1 - Mathf.Sqrt(sqrDst) / radius
+                    weightNotNormalized = 1 - Mathf.Sqrt(sqrDst) / radius
                 });
             }
         }
 
         // Normalize weights
-        var weightSum = data.Sum(point => point.weight);
+        var weightSum = data.Sum(point => point.weightNotNormalized);
         for (var i = 0; i < data.Count; i++)
         {
             var d = data[i];
-            d.weight /= weightSum;
+            d.weight = d.weightNotNormalized / weightSum;
             data[i] = d;
         }
 
         return data.ToArray();
+    }
+
+    [Obsolete("This is just to visualize the brush in a float field")]
+    internal void Debug_VisualizeBrush(FloatField groundMap)
+    {
+        var brush = new Brush(groundMap.width, groundMap.height, 3);
+
+        var brushMaxIndex = 0;
+        var brushMaxCount = 0;
+        var brushMax = int.MinValue;
+        for (var i = 0; i < brush.brushMap.values.Length; i++)
+        {
+            var c = brush.brushMap.values[i];
+            if (c.Length > brushMax)
+            {
+                brushMax = c.Length;
+                brushMaxIndex = i;
+                brushMaxCount = 1;
+            } else if (c.Length == brushMax)
+                brushMaxCount++;
+        }
+        Debug.Log($"max length {brushMax} with {brushMaxCount} elements and one index is {brushMaxIndex}");
+
+
+        var index = brushMaxIndex;
+        var brushPoint = brush.brushMap[index];
+        var logNew = brushPoint
+            .Select(p => string.Format("{0} ({1}{2}) => {3:N2}\n", p.index, p.position.x, p.position.y, p.weight))
+            .Aggregate("", (r, t) => r + t);
+        Debug.Log(logNew);
+        for (var i = 0; i < groundMap.size; i++)
+        {
+            try
+            {
+                var d = brushPoint.First(point => point.index == i);
+                groundMap[i] = d.weightNotNormalized;
+            }
+            catch (Exception e)
+            {
+                // ignored
+            }
+        }
     }
 
     public struct BrushPoint
@@ -79,6 +122,7 @@ public class Brush
         public Vector2Int position;
         public int index;
         public float weight;
+        public float weightNotNormalized;
 
         public override string ToString()
         {
