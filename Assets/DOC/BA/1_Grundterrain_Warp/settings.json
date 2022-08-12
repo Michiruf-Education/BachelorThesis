@@ -1,0 +1,214 @@
+{
+    "width": 200,
+    "height": 200,
+    "terrainHeight": 100.0,
+    "mode": 0,
+    "targetFilter": {
+        "instanceID": 23656
+    },
+    "targetRenderer": {
+        "instanceID": 23654
+    },
+    "remapGroundAfterNoises": true,
+    "remapGroundAfterNoisesMin": 0.0,
+    "remapGroundAfterNoisesMax": 1.0,
+    "clampGroundAfterNoises": false,
+    "heightNoiseLayers": [
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 3,
+            "noiseScale": 10.0,
+            "noiseAmplitude": 0.5,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 20.0,
+            "noiseAmplitude": 0.25,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 40.0,
+            "noiseAmplitude": 0.125,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 80.0,
+            "noiseAmplitude": 0.0625,
+            "clampSelf": false
+        },
+        {
+            "enabled": false,
+            "type": 2,
+            "blendMode": 9,
+            "seed": 0,
+            "noiseScale": 15.0,
+            "noiseAmplitude": 1.0,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 4,
+            "blendMode": 9,
+            "seed": 56,
+            "noiseScale": 2.0,
+            "noiseAmplitude": 1.0,
+            "clampSelf": false
+        }
+    ],
+    "remapHardnessAfterNoises": true,
+    "remapHardnessAfterNoisesMin": 0.0,
+    "remapHardnessAfterNoisesMax": 1.0,
+    "clampHardnessAfterNoises": true,
+    "hardnessExponentialModifier": 1.0,
+    "hardnessNoiseLayers": [
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 3,
+            "noiseScale": 10.0,
+            "noiseAmplitude": 0.5,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 20.0,
+            "noiseAmplitude": 0.25,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 40.0,
+            "noiseAmplitude": 0.125,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 1,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 80.0,
+            "noiseAmplitude": 0.0625,
+            "clampSelf": false
+        },
+        {
+            "enabled": true,
+            "type": 0,
+            "blendMode": 9,
+            "seed": 0,
+            "noiseScale": 0.0,
+            "noiseAmplitude": 0.0,
+            "clampSelf": false
+        }
+    ],
+    "remapSedimentAfterNoises": true,
+    "remapSedimentAfterNoisesMin": 0.0,
+    "remapSedimentAfterNoisesMax": 1.0,
+    "clampSedimentAfterNoises": false,
+    "sedimentNoiseLayers": [
+        {
+            "enabled": true,
+            "type": 0,
+            "blendMode": 0,
+            "seed": 0,
+            "noiseScale": 0.0,
+            "noiseAmplitude": 0.0,
+            "clampSelf": false
+        }
+    ],
+    "dynamicHardnessEnabled": false,
+    "groundToHardnessFactor": 4.0,
+    "sedimentMapEnabled": false,
+    "sedimentToGroundEnabled": false,
+    "sedimentToGroundFactor": 0.5,
+    "normalizeAfterErosion": false,
+    "erosionLayers": [
+        {
+            "enabled": true,
+            "type": 0,
+            "seed": 0,
+            "iterations": 50000,
+            "hydraulicErosionSettings": {
+                "erosionRadius": 3,
+                "inertia": 0.05000000074505806,
+                "sedimentCapacityFactor": 4.0,
+                "minSedimentCapacity": 0.009999999776482582,
+                "erodeSpeed": 0.30000001192092898,
+                "depositSpeed": 0.30000001192092898,
+                "evaporateSpeed": 0.009999999776482582,
+                "gravity": 4.0,
+                "maxDropletLifetime": 30,
+                "initialWaterVolume": 1.0,
+                "initialSpeed": 1.0,
+                "allowNegativeGroundValues": true
+            },
+            "windErosionSettings": {
+                "windDirection": {
+                    "x": 0.0,
+                    "y": 0.0
+                },
+                "sedimentMap": {
+                    "instanceID": 0
+                },
+                "maxParticleLifetime": 100000,
+                "gravity": 0.10000000149011612,
+                "initialSpeed": {
+                    "x": 1.0,
+                    "y": 0.0,
+                    "z": 1.0
+                },
+                "prevailingFactor": 0.10000000149011612,
+                "dt": 0.25,
+                "suspension": 0.00009999999747378752,
+                "abrasion": 0.00009999999747378752,
+                "roughness": 0.004999999888241291,
+                "settling": 0.009999999776482582
+            }
+        }
+    ],
+    "enableDebugFields": true,
+    "groundMapSpriteRenderer": {
+        "instanceID": 23548
+    },
+    "sedimentMapSpriteRenderer": {
+        "instanceID": 23572
+    },
+    "hardnessMapSpriteRenderer": {
+        "instanceID": 23536
+    },
+    "slowSimulation": false,
+    "slowSimulationWaitTimeBetweenIterations": 0.0,
+    "drawEachNthIteration": 50,
+    "visualizeErosionStep": false,
+    "redrawOnChange": true,
+    "enableInEditor": true,
+    "screenshotCameraOrthographic": {
+        "instanceID": 23662
+    },
+    "screenshotCameraPerspective": {
+        "instanceID": 23602
+    },
+    "screenshotCameraOverview": {
+        "instanceID": -15862
+    }
+}

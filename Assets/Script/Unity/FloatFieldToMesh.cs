@@ -24,30 +24,30 @@ public class FloatFieldToMesh
         meshFilter.sharedMesh = UpdateMesh(meshFilter.sharedMesh, floatField, height);
     }
 
-    public static Mesh UpdateMesh(Mesh mesh, IReadableFloatField heightMap, float height)
+    public static Mesh UpdateMesh(Mesh mesh, IReadableFloatField floatField, float height)
     {
         var verts = new List<Vector3>();
         var tris = new List<int>();
 
         // Bottom left section of the map, other sections are similar
-        for (var y = 0; y < heightMap.height; y++)
+        for (var y = 0; y < floatField.height; y++)
         {
-            for (var x = 0; x < heightMap.width; x++)
+            for (var x = 0; x < floatField.width; x++)
             {
                 // Add each new vertex in the plane
-                verts.Add(new Vector3(x, heightMap.GetValue(x, y) * height, y));
+                verts.Add(new Vector3(x, floatField.GetValue(x, y) * height, y));
 
                 // Skip if we cannot construct a triangle yet
                 if (x == 0 || y == 0) continue;
 
                 // Adds the index of the three vertices in order to make up each of the two tris
-                var i = (y - 1) * heightMap.width + (x - 1);
-                tris.Add(i + 1 + heightMap.width); // Bottom right
+                var i = (y - 1) * floatField.width + (x - 1);
+                tris.Add(i + 1 + floatField.width); // Bottom right
                 tris.Add(i + 1); // Top right
                 tris.Add(i); // Top left
                 tris.Add(i); // Top left
-                tris.Add(i + heightMap.width); // Bottom left
-                tris.Add(i + 1 + heightMap.width); // Bottom right
+                tris.Add(i + floatField.width); // Bottom left
+                tris.Add(i + 1 + floatField.width); // Bottom right
             }
         }
 

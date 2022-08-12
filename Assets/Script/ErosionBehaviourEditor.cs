@@ -74,6 +74,7 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Save base data"))
         {
+            GL.wireframe = t.screenshotWireframe;
             SaveTexture(t.groundMap, t, now, "ground", false);
             SaveTexture(t.hardnessMap, t, now, "hardness", false);
             SaveTexture(t.sedimentMap, t, now, "sediment", false);
@@ -81,10 +82,12 @@ public class ErosionBehaviourEditor : Editor
             SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", false);
             SaveScreenshot(t.screenshotCameraOverview, t, now, "terrain_overview", false);
             SaveUnityData(t, now);
+            GL.wireframe = false;
         }
 
         if (GUILayout.Button("Save eroded data"))
         {
+            GL.wireframe = t.screenshotWireframe;
             SaveTexture(t.groundMap, t, now, "ground", true);
             SaveTexture(t.hardnessMap, t, now, "hardness", true);
             SaveTexture(t.sedimentMap, t, now, "sediment", true);
@@ -92,6 +95,7 @@ public class ErosionBehaviourEditor : Editor
             SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", true);
             SaveScreenshot(t.screenshotCameraOverview, t, now, "terrain_overview", true);
             SaveUnityData(t, now);
+            GL.wireframe = false;
         }
     }
 
