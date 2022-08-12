@@ -12,6 +12,7 @@ public class HydraulicErosion : IErosion
     private FloatField hardnessMap;
     private float groundToHardnessFactor;
     private bool sedimentMapEnabled;
+    private float sedimentToGroundFactor;
     private Brush brush;
 
     public HydraulicErosion(HydraulicErosionSettings settings, int seed)
@@ -21,7 +22,7 @@ public class HydraulicErosion : IErosion
     }
 
     public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap,
-        float groundToHardnessFactor, bool sedimentMapEnabled)
+        float groundToHardnessFactor, bool sedimentMapEnabled, float sedimentToGroundFactor)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
@@ -29,6 +30,7 @@ public class HydraulicErosion : IErosion
         this.hardnessMap = hardnessMap;
         this.groundToHardnessFactor = groundToHardnessFactor;
         this.sedimentMapEnabled = sedimentMapEnabled;
+        this.sedimentToGroundFactor = sedimentToGroundFactor;
         brush = new Brush(heightMap.width, heightMap.height, s.erosionRadius);
     }
 
@@ -84,6 +86,25 @@ public class HydraulicErosion : IErosion
                 // Deposition is not distributed over a radius (like erosion) so that it can fill small pits
                 var dropletIndex = originalDroplet.CalculateIndex(heightMap);
                 var cellOffset = originalDroplet.cellOffset;
+                
+                // Take some sediment and put in on the ground
+                if (sedimentMapEnabled && sedimentToGroundFactor != 0f)
+                {
+                    var inverseFactor = 1f - sedimentToGroundFactor;
+                    var previousSediment00 = sedimentMap[dropletIndex];
+                    var previousSediment01 = sedimentMap[dropletIndex + 1];
+                    var previousSediment10 = sedimentMap[dropletIndex + heightMap.width];
+                    var previousSediment11 = sedimentMap[dropletIndex + heightMap.width + 1];
+                    sedimentMap[dropletIndex] = previousSediment00 * inverseFactor;
+                    sedimentMap[dropletIndex + 1] = previousSediment01 * inverseFactor;
+                    sedimentMap[dropletIndex + heightMap.width] = previousSediment10 * inverseFactor;
+                    sedimentMap[dropletIndex + heightMap.width + 1] = previousSediment11 * inverseFactor;
+                    groundMap[dropletIndex] += previousSediment00 * sedimentToGroundFactor;
+                    groundMap[dropletIndex + 1] += previousSediment01 * sedimentToGroundFactor;
+                    groundMap[dropletIndex + heightMap.width] += previousSediment10 * sedimentToGroundFactor;
+                    groundMap[dropletIndex + heightMap.width + 1] += previousSediment11 * sedimentToGroundFactor;
+                }
+                
                 var targetMap = sedimentMapEnabled ? sedimentMap : groundMap;
                 targetMap[dropletIndex] += amountToDeposit * (1 - cellOffset.x) * (1 - cellOffset.y);
                 targetMap[dropletIndex + 1] += amountToDeposit * cellOffset.x * (1 - cellOffset.y);
@@ -119,7 +140,7 @@ public class HydraulicErosion : IErosion
 
                     // Update droplet sediment amount
                     droplet.sediment += removeSediment + removeGround;
-                } 
+                }
             }
 
             // Update droplet's speed and water content

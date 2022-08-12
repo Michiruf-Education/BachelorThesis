@@ -1,9 +1,6 @@
 using System;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using MyBox;
 using UnityEditor;
 using UnityEngine;
 
@@ -82,6 +79,7 @@ public class ErosionBehaviourEditor : Editor
             SaveTexture(t.sedimentMap, t, now, "sediment", false);
             SaveScreenshot(t.screenshotCameraOrthographic, t, now, "terrain_orthographic", false);
             SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", false);
+            SaveScreenshot(t.screenshotCameraOverview, t, now, "terrain_overview", false);
             SaveUnityData(t, now);
         }
 
@@ -92,6 +90,7 @@ public class ErosionBehaviourEditor : Editor
             SaveTexture(t.sedimentMap, t, now, "sediment", true);
             SaveScreenshot(t.screenshotCameraOrthographic, t, now, "terrain_orthographic", true);
             SaveScreenshot(t.screenshotCameraPerspective, t, now, "terrain_perspective", true);
+            SaveScreenshot(t.screenshotCameraOverview, t, now, "terrain_overview", true);
             SaveUnityData(t, now);
         }
     }
@@ -122,6 +121,9 @@ public class ErosionBehaviourEditor : Editor
 
             if (t.sedimentMapEnabled)
                 sb.Append("_sediment");
+
+            if (t.sedimentToGroundEnabled)
+                sb.Append("_sedimentToGround-").Append(t.sedimentToGroundFactor);
         }
 
         var path = sb.Append(".png").ToString();

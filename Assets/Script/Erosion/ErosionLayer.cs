@@ -47,7 +47,8 @@ public class ErosionLayer
             b.sedimentMap,
             b.hardnessMap,
             b.dynamicHardnessEnabled ? b.groundToHardnessFactor : 0f,
-            b.sedimentMapEnabled
+            b.sedimentMapEnabled,
+            b.sedimentToGroundEnabled ? b.sedimentToGroundFactor : 0f
         );
 
         if (b.slowSimulation)
@@ -73,13 +74,11 @@ public class ErosionLayer
         {
             erosion.ErodeStep();
 
-            if (b.slowSimulation)
-            {
-                if (i % b.drawEachNthIteration == 0)
-                    b.Draw(false);
+            if (b.drawEachNthIteration != 0 && i % b.drawEachNthIteration == 0)
+                b.Draw(false);
 
+            if (b.slowSimulationWaitTimeBetweenIterations != 0)
                 yield return new WaitForSeconds(b.slowSimulationWaitTimeBetweenIterations / 1000f);
-            }
         }
     }
 

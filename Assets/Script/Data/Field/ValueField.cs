@@ -32,7 +32,7 @@ public class ValueField<T> : IValueField<T>
 
     public int GetYFromIndex(int index)
     {
-        return index % width;
+        return index / width;
     }
 
     public T GetValue(int index)

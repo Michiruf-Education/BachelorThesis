@@ -32,17 +32,6 @@ public class ErosionBehaviour : MonoBehaviour
     public bool clampGroundAfterNoises;
     public List<NoiseLayer> heightNoiseLayers;
 
-    [Separator("Sediment generation")] //
-    [OverrideLabel("Remap sediment")]
-    public bool remapSedimentAfterNoises = true;
-    [OverrideLabel("Min")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] //
-    public float remapSedimentAfterNoisesMin;
-    [OverrideLabel("Max")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] // 
-    public float remapSedimentAfterNoisesMax = 1f;
-    [OverrideLabel("Clamp (after remap)")] //
-    public bool clampSedimentAfterNoises;
-    public List<NoiseLayer> sedimentNoiseLayers;
-
     [Separator("Hardness generation")] //
     [OverrideLabel("Remap hardness")]
     public bool remapHardnessAfterNoises = true;
@@ -55,13 +44,28 @@ public class ErosionBehaviour : MonoBehaviour
     public float hardnessExponentialModifier = 1f;
     public List<NoiseLayer> hardnessNoiseLayers;
 
-    [Separator("Dynamic hardness")] //
-    public bool dynamicHardnessEnabled;
-    public float groundToHardnessFactor;
+    [Separator("Sediment generation")] //
+    [OverrideLabel("Remap sediment")]
+    public bool remapSedimentAfterNoises = true;
+    [OverrideLabel("Min")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] //
+    public float remapSedimentAfterNoisesMin;
+    [OverrideLabel("Max")] [ConditionalField("remapSedimentAfterNoises", compareValues: true)] // 
+    public float remapSedimentAfterNoisesMax = 1f;
+    [OverrideLabel("Clamp (after remap)")] //
+    public bool clampSedimentAfterNoises;
+    public List<NoiseLayer> sedimentNoiseLayers;
 
     [Separator("Erosion")] //
-    public bool normalizeAfterErosion = true;
+    [Header("Dynamic hardness")] //
+    public bool dynamicHardnessEnabled;
+    public float groundToHardnessFactor;
+    [Header("Sediment")] //
     public bool sedimentMapEnabled = true;
+    public bool sedimentToGroundEnabled = true;
+    [Range(0f, 1f)]
+    public float sedimentToGroundFactor = 0.1f;
+    [Header("Erosion")] //
+    public bool normalizeAfterErosion = true;
     public List<ErosionLayer> erosionLayers;
 
     [Separator("Debug fields")] //
@@ -84,6 +88,7 @@ public class ErosionBehaviour : MonoBehaviour
     public bool enableInEditor;
     public Camera screenshotCameraOrthographic;
     public Camera screenshotCameraPerspective;
+    public Camera screenshotCameraOverview;
 
     // Runtime variables
     internal CompoundFloatField heightMap;
