@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using MyBox;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Debug = UnityEngine.Debug;
 
 public class ErosionBehaviour : MonoBehaviour
@@ -56,10 +57,13 @@ public class ErosionBehaviour : MonoBehaviour
     public bool clampSedimentAfterNoises;
     public List<NoiseLayer> sedimentNoiseLayers;
 
+    [FormerlySerializedAs("dynamicHardnessEnabled")]
     [Separator("Erosion")] //
     [Header("Dynamic hardness")]
-    public bool dynamicHardnessEnabled;
+    public bool groundToHardnessEnabled;
     public float groundToHardnessFactor;
+    public bool sedimentToSoftnessEnabled;
+    public float sedimentToSoftnessFactor;
     [Header("Sediment")] //
     public bool sedimentMapEnabled = true;
     public bool sedimentToGroundEnabled = true;

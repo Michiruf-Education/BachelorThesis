@@ -46,7 +46,8 @@ public class ErosionLayer
             b.groundMap,
             b.sedimentMap,
             b.hardnessMap,
-            b.dynamicHardnessEnabled ? b.groundToHardnessFactor : 0f,
+            b.groundToHardnessEnabled ? b.groundToHardnessFactor : 0f,
+            b.sedimentToSoftnessEnabled ? b.sedimentToSoftnessFactor : 0f,
             b.sedimentMapEnabled,
             b.sedimentToGroundEnabled ? b.sedimentToGroundFactor : 0f
         );

@@ -120,8 +120,11 @@ public class ErosionBehaviourEditor : Editor
             var iterations = t.erosionLayers[0].iterations;
             sb.Append("_").Append("erosion-").Append(iterations);
 
-            if (t.dynamicHardnessEnabled)
-                sb.Append("_").Append("dynamic-").Append(t.groundToHardnessFactor);
+            if (t.groundToHardnessEnabled)
+                sb.Append("_").Append("groundToHardness-").Append(t.groundToHardnessFactor);
+
+            if (t.sedimentToSoftnessEnabled)
+                sb.Append("_").Append("sedimentToSoftness-").Append(t.sedimentToSoftnessFactor);
 
             if (t.sedimentMapEnabled)
                 sb.Append("_sediment");

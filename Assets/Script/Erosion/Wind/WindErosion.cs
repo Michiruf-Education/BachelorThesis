@@ -12,6 +12,7 @@ public class WindErosion : IErosion
     private FloatField sedimentMap;
     private FloatField hardnessMap;
     private float groundToHardnessFactor;
+    private float sedimentToSoftnessFactor;
     private bool sedimentMapEnabled;
     private float sedimentToGroundFactor;
 
@@ -34,13 +35,14 @@ public class WindErosion : IErosion
     }
 
     public void Init(IReadableFloatField heightMap, FloatField groundMap, FloatField sedimentMap, FloatField hardnessMap,
-        float groundToHardnessFactor, bool sedimentMapEnabled, float sedimentToGroundFactor)
+        float groundToHardnessFactor, float sedimentToSoftnessFactor, bool sedimentMapEnabled, float sedimentToGroundFactor)
     {
         this.heightMap = heightMap;
         this.groundMap = groundMap;
         this.hardnessMap = hardnessMap;
         this.sedimentMap = sedimentMap;
         this.groundToHardnessFactor = groundToHardnessFactor;
+        this.sedimentToSoftnessFactor = sedimentToSoftnessFactor;
         this.sedimentMapEnabled = sedimentMapEnabled;
         this.sedimentToGroundFactor = sedimentToGroundFactor;
     }
