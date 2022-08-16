@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
+using Debug = UnityEngine.Debug;
 
 // TODO For any reason this brush has slightly different values than the old one.
 //      The old one is for backup reasons in the same commit as this comment was introduced in a file names "OldBrush.cs".
@@ -12,7 +14,13 @@ public class Brush
 
     public Brush(int width, int height, int radius)
     {
+        var timer = new Stopwatch();
+        timer.Start();
+        
         Initialize(width, height, radius);
+        
+        timer.Stop();
+        Debug.Log($"Brush initialization finished after {timer.ElapsedMilliseconds}ms");
     }
 
     private void Initialize(int width, int height, int radius)
@@ -110,7 +118,7 @@ public class Brush
                 var d = brushPoint.First(point => point.index == i);
                 groundMap[i] = d.weightNotNormalized;
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }

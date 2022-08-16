@@ -20,6 +20,17 @@ public class ErosionBehaviourEditor : Editor
             EditorGUILayout.Space();
         }
 
+        if (t.sedimentToSoftnessEnabled)
+        {
+            EditorGUILayout.HelpBox("sedimentToSoftnessFactor is currently commented out!", MessageType.Error);
+            EditorGUILayout.Space();
+        }
+        if(t.sedimentToGroundEnabled)
+        {
+            EditorGUILayout.HelpBox("sedimentToGroundFactor is currently commented out!", MessageType.Error);
+            EditorGUILayout.Space();
+        }
+
         base.OnInspectorGUI();
 
         if (t.enableInEditor)

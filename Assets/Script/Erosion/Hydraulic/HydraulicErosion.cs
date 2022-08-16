@@ -89,23 +89,23 @@ public class HydraulicErosion : IErosion
                 var dropletIndex = originalDroplet.CalculateIndex(heightMap);
                 var cellOffset = originalDroplet.cellOffset;
 
-                // Take some sediment and put in on the ground
-                if (sedimentMapEnabled && sedimentToGroundFactor != 0f)
-                {
-                    var inverseFactor = 1f - sedimentToGroundFactor;
-                    var previousSediment00 = sedimentMap[dropletIndex];
-                    var previousSediment01 = sedimentMap[dropletIndex + 1];
-                    var previousSediment10 = sedimentMap[dropletIndex + heightMap.width];
-                    var previousSediment11 = sedimentMap[dropletIndex + heightMap.width + 1];
-                    sedimentMap[dropletIndex] = previousSediment00 * inverseFactor;
-                    sedimentMap[dropletIndex + 1] = previousSediment01 * inverseFactor;
-                    sedimentMap[dropletIndex + heightMap.width] = previousSediment10 * inverseFactor;
-                    sedimentMap[dropletIndex + heightMap.width + 1] = previousSediment11 * inverseFactor;
-                    groundMap[dropletIndex] += previousSediment00 * sedimentToGroundFactor;
-                    groundMap[dropletIndex + 1] += previousSediment01 * sedimentToGroundFactor;
-                    groundMap[dropletIndex + heightMap.width] += previousSediment10 * sedimentToGroundFactor;
-                    groundMap[dropletIndex + heightMap.width + 1] += previousSediment11 * sedimentToGroundFactor;
-                }
+                // // Take some sediment and put in on the ground
+                // if (sedimentMapEnabled && sedimentToGroundFactor != 0f)
+                // {
+                //     var inverseFactor = 1f - sedimentToGroundFactor;
+                //     var previousSediment00 = sedimentMap[dropletIndex];
+                //     var previousSediment01 = sedimentMap[dropletIndex + 1];
+                //     var previousSediment10 = sedimentMap[dropletIndex + heightMap.width];
+                //     var previousSediment11 = sedimentMap[dropletIndex + heightMap.width + 1];
+                //     sedimentMap[dropletIndex] = previousSediment00 * inverseFactor;
+                //     sedimentMap[dropletIndex + 1] = previousSediment01 * inverseFactor;
+                //     sedimentMap[dropletIndex + heightMap.width] = previousSediment10 * inverseFactor;
+                //     sedimentMap[dropletIndex + heightMap.width + 1] = previousSediment11 * inverseFactor;
+                //     groundMap[dropletIndex] += previousSediment00 * sedimentToGroundFactor;
+                //     groundMap[dropletIndex + 1] += previousSediment01 * sedimentToGroundFactor;
+                //     groundMap[dropletIndex + heightMap.width] += previousSediment10 * sedimentToGroundFactor;
+                //     groundMap[dropletIndex + heightMap.width + 1] += previousSediment11 * sedimentToGroundFactor;
+                // }
 
                 var targetMap = sedimentMapEnabled ? sedimentMap : groundMap;
                 // NOTE Introducing this variable here produces a slightly different result because of floating point precision
@@ -119,13 +119,13 @@ public class HydraulicErosion : IErosion
                 targetMap[dropletIndex + heightMap.width + 1] += amount3;
 
                 // Soften the hardness map if its enabled
-                if (sedimentToSoftnessFactor != 0f)
-                {
-                    hardnessMap[dropletIndex] -= amount0 * sedimentToSoftnessFactor;
-                    hardnessMap[dropletIndex + 1] -= amount1 * sedimentToSoftnessFactor;
-                    hardnessMap[dropletIndex + heightMap.width] -= amount2 * sedimentToSoftnessFactor;
-                    hardnessMap[dropletIndex + heightMap.width + 1] -= amount3 * sedimentToSoftnessFactor;
-                }
+                // if (sedimentToSoftnessFactor != 0f)
+                // {
+                //     hardnessMap[dropletIndex] -= amount0 * sedimentToSoftnessFactor;
+                //     hardnessMap[dropletIndex + 1] -= amount1 * sedimentToSoftnessFactor;
+                //     hardnessMap[dropletIndex + heightMap.width] -= amount2 * sedimentToSoftnessFactor;
+                //     hardnessMap[dropletIndex + heightMap.width + 1] -= amount3 * sedimentToSoftnessFactor;
+                // }
             }
             else
             {
@@ -144,8 +144,7 @@ public class HydraulicErosion : IErosion
 
                     // Sediment gets eroded ignoring hardness, ground uses hardness
                     // If the sediment is not enabled, then there will be always 0
-                    // var removeSediment = sedimentMapEnabled ? Mathf.Min(sedimentMap[currentIndex], erodeAmount) : 0f;
-                    var removeSediment = Mathf.Min(sedimentMap[currentIndex], erodeAmount);
+                    var removeSediment = sedimentMapEnabled ? Mathf.Min(sedimentMap[currentIndex], erodeAmount) : 0f;
                     var removeGround = (erodeAmount - removeSediment) * (1f - hardnessMap[currentIndex]);
                     if (!s.allowNegativeGroundValues)
                         removeGround = Mathf.Min(groundMap[currentIndex], removeGround);
