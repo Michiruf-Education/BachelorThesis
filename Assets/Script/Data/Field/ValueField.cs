@@ -1,18 +1,25 @@
 using System;
 using UnityEngine;
 
+// We want no auto-properties, since unity needs those private fields for serialization
+// ReSharper disable all ConvertToAutoPropertyWithPrivateSetter
+[Serializable]
 public class ValueField<T> : IValueField<T>
 {
-    public int width { get; }
-    public int height { get; }
-    public T[] values { get; }
+    private int widthInternal;
+    private int heightInternal;
+    private T[] valuesInternal;
+
+    public int width => widthInternal;
+    public int height => heightInternal;
+    public T[] values => valuesInternal;
     public int size => width * height;
 
     public ValueField(int width, int height)
     {
-        this.width = width;
-        this.height = height;
-        values = new T[width * height];
+        widthInternal = width;
+        heightInternal = height;
+        valuesInternal = new T[width * height];
     }
 
     public int GetIndex(int x, int y)

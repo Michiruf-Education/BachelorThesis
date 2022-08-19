@@ -25,7 +25,7 @@ public class ErosionBehaviourEditor : Editor
             EditorGUILayout.HelpBox("sedimentToSoftnessFactor is currently commented out!", MessageType.Error);
             EditorGUILayout.Space();
         }
-        if(t.sedimentToGroundEnabled)
+        if (t.sedimentToGroundEnabled)
         {
             EditorGUILayout.HelpBox("sedimentToGroundFactor is currently commented out!", MessageType.Error);
             EditorGUILayout.Space();
@@ -37,6 +37,7 @@ public class ErosionBehaviourEditor : Editor
             DrawEditorControls(t);
 
         DrawSaveDataControls(t);
+        DrawMetricControls(t);
     }
 
     private void DrawEditorControls(ErosionBehaviour t)
@@ -198,5 +199,62 @@ public class ErosionBehaviourEditor : Editor
         var json = JsonUtility.ToJson(t, true);
         File.WriteAllText(path, json);
         Debug.Log($"Saved settings to {path}");
+    }
+
+    private void DrawMetricControls(ErosionBehaviour t)
+    {
+        EditorGUILayout.Space();
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+        EditorGUILayout.Space();
+        GUILayout.Label("Calculate metrics", EditorStyles.boldLabel);
+        EditorGUILayout.Space();
+
+        if (GUILayout.Button("Calculate height variance of current data"))
+        {
+            var metrics = Metrics.Calculate(t.heightMap);
+            Debug.Log("Metric: height variance of current data:\n" +
+                      $"sum of heights: {metrics.sum}\n" +
+                      $"average height: {metrics.average}\n" +
+                      $"variance: {metrics.variance}\n");
+        }
+
+        if (GUILayout.Button("Calculate height variance of difference of current data and initial height (after noise)"))
+        {
+            // Recreate the initial height like it is done in ErosionBehaviour
+            var initialHeight = new FloatField(t.width, t.height);
+            t.heightNoiseLayers.ForEach(layer => layer.Apply(initialHeight));
+            // Remap height
+            if (t.remapGroundAfterNoises)
+                initialHeight.Remap(t.remapGroundAfterNoisesMin, t.remapGroundAfterNoisesMax);
+            if (t.clampGroundAfterNoises)
+                initialHeight.ChangeAll(Mathf.Clamp01);
+
+            // Calculate difference
+            var difference = new FloatField(t.width, t.height);
+            difference.BlendAll(BlendMode.Add, t.heightMap);
+            difference.BlendAll(BlendMode.Subtract, initialHeight);
+
+            var metrics = Metrics.Calculate(difference);
+            Debug.Log(
+                "Metric: height variance of difference of current data and initial height (after noise):\n" +
+                $"sum of height differences: {metrics.sum}\n" +
+                $"average height difference: {metrics.average}\n" +
+                $"variance: {metrics.variance}\n");
+        }
+
+        if (GUILayout.Button("Sum of abs gradients"))
+        {
+            var result = 0f;
+            for (var x = 0; x < t.heightMap.width - 1; x++)
+            {
+                for (var y = 0; y < t.heightMap.height - 1; y++)
+                {
+                    var gradients = HeightAndGradient.Calculate(t.heightMap, new Vector2Int(x, y), Vector2.one * 0.5f);
+                    result += Mathf.Abs(gradients.gradientX);
+                    result += Mathf.Abs(gradients.gradientY);
+                }
+            }
+            Debug.Log($"Metric: Sum of abs gradients: {result}");
+        }
     }
 }

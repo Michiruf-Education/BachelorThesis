@@ -4,7 +4,7 @@ public interface IWriteableFloatField : IWriteableValueField<float>
 
     public void BlendAll(BlendMode mode, float value);
 
-    public void BlendAll(BlendMode mode, FloatField values);
+    public void BlendAll(BlendMode mode, IReadableFloatField values);
 
     public void Remap(float min, float max);
 }

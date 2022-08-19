@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using MyBox;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -98,9 +97,9 @@ public class ErosionBehaviour : MonoBehaviour
 
     // Runtime variables
     internal CompoundFloatField heightMap;
-    internal FloatField groundMap;
-    internal FloatField sedimentMap;
-    internal FloatField hardnessMap;
+    [SerializeField] [HideInInspector] internal FloatField groundMap;
+    [SerializeField] [HideInInspector] internal FloatField sedimentMap;
+    [SerializeField] [HideInInspector] internal FloatField hardnessMap;
 
     void Start()
     {
@@ -120,7 +119,13 @@ public class ErosionBehaviour : MonoBehaviour
         groundMap = new FloatField(width, height);
         sedimentMap = new FloatField(width, height);
         hardnessMap = new FloatField(width, height);
-        heightMap = new CompoundFloatField(BlendMode.Add, groundMap, sedimentMap);
+        MayCreateHeightMap();
+    }
+
+    private void MayCreateHeightMap()
+    {
+        if (groundMap != null && sedimentMap != null)
+            heightMap = new CompoundFloatField(BlendMode.Add, groundMap, sedimentMap);
     }
 
     public void ApplyNoises()
@@ -195,15 +200,15 @@ public class ErosionBehaviour : MonoBehaviour
         if (enableDebugFields)
         {
             groundMapSpriteRenderer.gameObject.SetActive(true);
-            groundMapSpriteRenderer.transform.position = new Vector3(width, 0, 0);
+            groundMapSpriteRenderer.transform.localPosition = new Vector3(width, 0, 0);
             groundMapSpriteRenderer.sprite = groundMap.ToTexture().ToSprite();
 
             sedimentMapSpriteRenderer.gameObject.SetActive(true);
-            sedimentMapSpriteRenderer.transform.position = new Vector3(width, 0, height);
+            sedimentMapSpriteRenderer.transform.localPosition = new Vector3(width, 0, height);
             sedimentMapSpriteRenderer.sprite = sedimentMap.ToTexture().ToSprite();
 
             hardnessMapSpriteRenderer.gameObject.SetActive(true);
-            hardnessMapSpriteRenderer.transform.position = new Vector3(width, 0, -height);
+            hardnessMapSpriteRenderer.transform.localPosition = new Vector3(width, 0, -height);
             hardnessMapSpriteRenderer.sprite = hardnessMap.ToTexture().ToSprite();
         }
         else
@@ -231,11 +236,17 @@ public class ErosionBehaviour : MonoBehaviour
 
     void OnValidate()
     {
+        if (!gameObject.activeInHierarchy)
+            return;
+
+        MayCreateHeightMap();
+
         if (!redrawOnChange)
             return;
+
         CreateData();
         ApplyNoises();
-        // Do not do erosion here, because it may be way to expansive with enough iterations
+        // Do not do erosion here, because it may be way to expensive with enough iterations
         Draw();
     }
 

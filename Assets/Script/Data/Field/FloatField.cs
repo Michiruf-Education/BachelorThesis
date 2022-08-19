@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
 using UnityEngine;
 
+[Serializable]
 public partial class FloatField : ValueField<float>, IFloatField
 {
     public FloatField(int width, int height) : base(width, height)
@@ -17,7 +19,7 @@ public partial class FloatField : ValueField<float>, IFloatField
         ChangeAll(f => Blend.Calc(mode, f, value));
     }
 
-    public void BlendAll(BlendMode mode, FloatField values)
+    public void BlendAll(BlendMode mode, IReadableFloatField values)
     {
         ChangeAll((fieldX, fieldY, f) => Blend.Calc(mode, f, values.GetValue(fieldX, fieldY)));
     }

@@ -15,6 +15,7 @@ public class WaterMeshGenerator : MonoBehaviour
 
     void OnValidate()
     {
-        Start();
+        if (gameObject.activeInHierarchy)
+            Start();
     }
 }
