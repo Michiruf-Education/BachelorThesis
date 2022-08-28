@@ -9,7 +9,7 @@ public struct Droplet
         set
         {
             positionValue = value;
-            cellPositionInt = new Vector2Int((int) positionValue.x, (int) positionValue.y);
+            cellPositionInt = new Vector2Int((int)positionValue.x, (int)positionValue.y);
             cellPosition = cellPositionInt.ToVector2();
             cellOffset = positionValue - cellPosition;
         }
@@ -45,5 +45,15 @@ public struct Droplet
     public int CalculateIndex(IReadableFloatField field)
     {
         return field.GetIndex(cellPositionInt.x, cellPositionInt.y);
+    }
+
+    internal void DebugDraw(IReadableFloatField field)
+    {
+        var h = field.GetValue(cellPositionInt.x, cellPositionInt.y);
+        var realPos = new Vector3(position.x, h * 100f, position.y - 1400f);
+        var p1 = realPos + Vector3.down * 100f;
+        var p2 = realPos + Vector3.up * 100f;
+        Debug.DrawLine(p1, p2, Color.cyan, 60f);
+        Debug.DrawLine(realPos, realPos + new Vector3(direction.x, 0f, direction.y), Color.red, 60f);
     }
 }

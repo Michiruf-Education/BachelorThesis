@@ -211,7 +211,7 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Calculate height variance of current data"))
         {
-            var metrics = Metrics.Calculate(t.heightMap);
+            var metrics = Metrics.CalculateHeightMetrics(t.heightMap);
             Debug.Log("Metric: height variance of current data:\n" +
                       $"sum of heights: {metrics.sum}\n" +
                       $"average height: {metrics.average}\n" +
@@ -234,7 +234,7 @@ public class ErosionBehaviourEditor : Editor
             difference.BlendAll(BlendMode.Add, t.heightMap);
             difference.BlendAll(BlendMode.Subtract, initialHeight);
 
-            var metrics = Metrics.Calculate(difference);
+            var metrics = Metrics.CalculateHeightMetrics(difference);
             Debug.Log(
                 "Metric: height variance of difference of current data and initial height (after noise):\n" +
                 $"sum of height differences: {metrics.sum}\n" +
@@ -244,17 +244,8 @@ public class ErosionBehaviourEditor : Editor
 
         if (GUILayout.Button("Sum of abs gradients"))
         {
-            var result = 0f;
-            for (var x = 0; x < t.heightMap.width - 1; x++)
-            {
-                for (var y = 0; y < t.heightMap.height - 1; y++)
-                {
-                    var gradients = HeightAndGradient.Calculate(t.heightMap, new Vector2Int(x, y), Vector2.one * 0.5f);
-                    result += Mathf.Abs(gradients.gradientX);
-                    result += Mathf.Abs(gradients.gradientY);
-                }
-            }
-            Debug.Log($"Metric: Sum of abs gradients: {result}");
+            var metrics = Metrics.CalculateDerivationAbsolutes(t.heightMap);
+            Debug.Log($"Metric: Sum of abs gradients: {metrics}");
         }
     }
 }

@@ -44,6 +44,8 @@ public class HydraulicErosion : IErosion
             random.NextFloat(0, heightMap.height - 1),
             s.initialSpeed,
             s.initialWaterVolume);
+        
+        // droplet.DebugDraw(heightMap);
 
         for (var lifetime = 0; lifetime < s.maxDropletLifetime; lifetime++)
         {
@@ -53,6 +55,7 @@ public class HydraulicErosion : IErosion
             var heightAndGradient = HeightAndGradient.Calculate(heightMap, droplet);
 
             // Update the droplet's direction and position (move position 1 unit regardless of speed)
+            // TODO Here is '+=' through the whole BA, dafuq that was wrong, just put '=' here
             droplet.direction += new Vector2(
                 droplet.direction.x * s.inertia - heightAndGradient.gradientX * (1 - s.inertia),
                 droplet.direction.y * s.inertia - heightAndGradient.gradientY * (1 - s.inertia)
@@ -164,6 +167,8 @@ public class HydraulicErosion : IErosion
             // Update droplet's speed and water content
             droplet.speed = Mathf.Sqrt(droplet.speed * droplet.speed + deltaHeight * s.gravity);
             droplet.water *= 1 - s.evaporateSpeed;
+            
+            // droplet.DebugDraw(heightMap);
         }
     }
 }
